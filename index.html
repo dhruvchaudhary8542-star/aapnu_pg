@@ -764,6 +764,11 @@
             </div>
           </div>
 
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-left">
+            <p class="text-xs font-bold text-amber-900">📌 ખાસ નોંધ (ફી બાબત):</p>
+            <p class="text-[11px] text-amber-800 mt-0.5 leading-relaxed">QR કોડ સ્કેન કરીને રજીસ્ટ્રેશન કરનાર વિદ્યાર્થીની માસિક ફી ઓટોમેટિક સેટ થશે નહીં. રજીસ્ટ્રેશન પછી PG માલિકે વિદ્યાર્થીની પ્રોફાઇલ <strong>(✏️ એડિટ)</strong> ખોલીને માસિક ફી અને ડિપોઝિટ ઉમેરવાની રહેશે.</p>
+          </div>
+
           <p id="qrLinkPreview" class="text-[11px] font-mono text-slate-500 bg-slate-50 px-3 py-2 rounded-xl break-all border border-slate-200/70"></p>
 
           <div class="grid grid-cols-2 gap-2.5">
@@ -1159,6 +1164,36 @@
               <input id="spPinInput" type="text" maxlength="6" value="111111" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
             </div>
           </div>
+          <p class="text-[11px] font-semibold text-amber-900 bg-white/80 border border-amber-200 rounded-xl px-2.5 py-1.5">ℹ️ તમારી માસિક ફી અને ડિપોઝિટ PG માલિક દ્વારા સેટ કરવામાં આવશે.</p>
+        </div>
+
+        <!-- Owner-only Student Edit Section: Room, Mobile, Fee, Deposit & Reset 6-digit PIN -->
+        <div id="spOwnerFeePinWrap" class="hidden bg-teal-50/70 border border-teal-200 rounded-2xl p-3.5 space-y-2.5">
+          <p class="text-xs font-extrabold text-teal-950">👑 માલિક કંટ્રોલ — રૂમ, ફી અને PIN રીસેટ</p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label for="spOwnerRoomInput" class="block text-xs font-semibold text-slate-600 mb-1">રૂમ નંબર *</label>
+              <input id="spOwnerRoomInput" type="text" placeholder="101" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+            </div>
+            <div>
+              <label for="spOwnerPhoneInput" class="block text-xs font-semibold text-slate-600 mb-1">મોબાઈલ નંબર (10 અંક) *</label>
+              <input id="spOwnerPhoneInput" type="tel" maxlength="10" placeholder="9876543210" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label for="spOwnerRentInput" class="block text-xs font-semibold text-slate-600 mb-1">માસિક ફી / ભાડું (₹) *</label>
+              <input id="spOwnerRentInput" type="number" min="0" step="100" placeholder="જેમ કે 6500" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+            </div>
+            <div>
+              <label for="spOwnerDepositInput" class="block text-xs font-semibold text-slate-600 mb-1">ડિપોઝિટ (₹)</label>
+              <input id="spOwnerDepositInput" type="number" min="0" step="500" placeholder="જેમ કે 5000" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+            </div>
+          </div>
+          <div class="bg-white/90 border border-rose-200 rounded-xl p-2.5 space-y-1">
+            <label for="spOwnerResetPinInput" class="block text-xs font-bold text-rose-900">🔑 વિદ્યાર્થીનો PIN રીસેટ કરો (જો ભૂલી ગયા હોય)</label>
+            <input id="spOwnerResetPinInput" type="text" inputmode="numeric" maxlength="6" placeholder="નવો 6-અંકનો PIN (ખાલી રાખો તો જૂનો જ રહેશે)" class="w-full px-3 py-2 text-sm bg-white border border-rose-200 rounded-xl" />
+          </div>
         </div>
 
         <div class="bg-sky-50/50 border border-sky-100 rounded-2xl p-3.5 space-y-2.5">
@@ -1433,6 +1468,11 @@
         <div>
           <label for="saPgBedRateInput" class="block text-xs font-semibold text-slate-600 mb-1">આ PG માટે ભાવ (₹ પ્રતિ ભરેલો બેડ / મહિનો) *</label>
           <input id="saPgBedRateInput" type="number" min="1" step="5" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+        </div>
+
+        <div class="bg-rose-50/70 border border-rose-200 rounded-xl p-3 space-y-1.5">
+          <label for="saResetOwnerPinInput" class="block text-xs font-bold text-rose-900">🔑 PG માલિકનો લોગિન PIN રીસેટ કરો (જો ભૂલી ગયા હોય)</label>
+          <input id="saResetOwnerPinInput" type="text" inputmode="numeric" maxlength="6" placeholder="નવો 6-અંકનો PIN (ખાલી રાખો તો જૂનો જ રહેશે)" class="w-full px-3 py-2 text-sm bg-white border border-rose-200 rounded-xl" />
         </div>
 
         <label class="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
@@ -2036,6 +2076,7 @@
           const { error } = await sbClient.from('pg_accounts').upsert(rows);
           if (error) throw error;
         }
+        if (targetPgId) lastKnownPgUpdatedAt[targetPgId] = new Date().toISOString();
         lastCloudError = '';
         setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
       } catch (err) {
@@ -2111,11 +2152,51 @@
       }
     }
 
+    let lastKnownPgUpdatedAt = {};
+    let isSyncInFlight = false;
+
     function saveState() {
       saveLocalSafe();
       const activePgId = (appState.session && appState.session.pgId) ? appState.session.pgId : null;
       if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
-      cloudSaveTimer = setTimeout(() => { pushToSupabase(activePgId); }, 350);
+      cloudSaveTimer = setTimeout(() => { pushToSupabase(activePgId); }, 80);
+    }
+
+    function saveStateNow(targetPgId) {
+      saveLocalSafe();
+      if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+      const pgId = targetPgId || (appState.session && appState.session.pgId) || null;
+      return pushToSupabase(pgId);
+    }
+
+    function sendPaymentReminderToStudent(pg, tenant) {
+      const roomElec = calcRoomElectricity(pg, tenant.room);
+      const totalDue = (Number(tenant.rent) || 0) + (roomElec ? roomElec.perStudentBill : 0);
+      const remId = 'rem_' + Date.now();
+      tenant.lastReminder = {
+        id: remId,
+        sentAt: new Date().toISOString(),
+        amount: totalDue,
+        title: `🔔 ફી રિમાઇન્ડર — ${pg.name}`,
+        body: `${tenant.name}, રૂમ ${tenant.room} ની તમારી માસિક ફી ${formatRupees(totalDue)} બાકી છે. કૃપા કરીને આજે જ PG માલિકને ચૂકવી દો.`
+      };
+      addSecurityAudit(pg, `🔔 ${tenant.name} ના ફોનમાં ફી રિમાઇન્ડર નોટિફિકેશન મોકલ્યું`);
+      saveStateNow(pg.id);
+      render();
+      showToast(`🔔 ${tenant.name} ના ફોનમાં ફી રિમાઇન્ડર નોટિફિકેશન મોકલાઈ ગયું!`);
+    }
+
+    function checkStudentIncomingReminders(pg, tenant) {
+      if (!pg || !tenant || tenant.paid || !tenant.lastReminder || !tenant.lastReminder.id) return;
+      const seenKey = 'aapnu_pg_seen_rem_' + tenant.lastReminder.id;
+      if (localStorage.getItem(seenKey)) return;
+      localStorage.setItem(seenKey, '1');
+      sendLocalPhoneNotification(
+        tenant.lastReminder.title || `🔔 ફી રિમાઇન્ડર — ${pg.name}`,
+        tenant.lastReminder.body || `તમારી માસિક ફી બાકી છે.`,
+        tenant.lastReminder.id
+      );
+      showToast(tenant.lastReminder.body || '🔔 PG માલિક તરફથી ફી રિમાઇન્ડર આવ્યું છે!');
     }
 
     // ==================== STEP 13: HEAVY SECURITY ENGINE ====================
@@ -2788,6 +2869,9 @@
                 <button type="button" data-sa-action="plan" data-pg-id="${escapeHtml(pg.id)}" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold cursor-pointer">
                   📅 પ્લાન / ₹ બેડ બદલો
                 </button>
+                <button type="button" data-sa-action="reset-pin" data-pg-id="${escapeHtml(pg.id)}" class="px-3.5 py-2 rounded-xl bg-violet-100 hover:bg-violet-200 text-violet-950 border border-violet-300 text-xs font-bold cursor-pointer">
+                  🔑 માલિક PIN રીસેટ
+                </button>
                 <button type="button" data-sa-action="toggle-allow" data-pg-id="${escapeHtml(pg.id)}" class="px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer ${
                   st.isAllowed
                     ? 'bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300'
@@ -3190,7 +3274,7 @@
               </div>
 
               <div class="bg-slate-50 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
-                <span>ભાડું: <strong class="text-slate-800">${formatRupees(t.rent)}</strong></span>
+                <span>ભાડું: <strong class="text-slate-800">${Number(t.rent) > 0 ? formatRupees(t.rent) : '<span class="text-amber-700">₹0 (માલિકે સેટ કરવાનું બાકી)</span>'}</strong></span>
                 <span>વીજળી ભાગ: <strong class="text-amber-700">${formatRupees(elec.perStudentBill)}</strong>${elec.hasMeter ? ` (કુલ ${formatRupees(elec.roomTotalBill)} ÷ ${elec.studentCount})` : ''}</span>
               </div>
 
@@ -3198,14 +3282,18 @@
                 <button type="button" data-rd-action="profile" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-50 text-teal-900 border border-teal-200 hover:bg-teal-100 cursor-pointer">
                   👤 પ્રોફાઈલ
                 </button>
+                <button type="button" data-rd-action="edit" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-900 border border-indigo-200 hover:bg-indigo-100 cursor-pointer">
+                  ✏️ એડિટ / PIN
+                </button>
                 <button type="button" data-rd-action="docs" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 cursor-pointer">
                   🪪 ડોક્યુમેન્ટ (${docCount})
                 </button>
                 <button type="button" data-rd-action="bill" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-violet-100 text-violet-900 border border-violet-200 hover:bg-violet-200 cursor-pointer">
                   📄 બિલ
                 </button>
-                <button type="button" data-rd-action="whatsapp" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${waBtnClass}">
-                  ${waBtnLabel}
+                ${!t.paid ? `<button type="button" data-rd-action="notify" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300 hover:bg-amber-200 cursor-pointer">🔔 રિમાઇન્ડર મોકલો</button>` : ''}
+                <button type="button" data-rd-action="whatsapp" data-id="${escapeHtml(t.id)}" class="px-2.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${waBtnClass}" title="WhatsApp કોપી">
+                  ${t.paid ? '📲 રસીદ કોપી' : '💬 WA'}
                 </button>
                 <button type="button" data-rd-action="toggle" data-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${toggleBtnClass}">
                   ${t.paid ? 'બાકી કરો' : 'ચૂકવાઈ ગયું કરો'}
@@ -3821,6 +3909,10 @@
 
       if (action === 'profile') {
         openTenantProfileModal(pg, tenant);
+      } else if (action === 'edit') {
+        openSelfProfileModal('owner-edit', tenant.id);
+      } else if (action === 'notify') {
+        sendPaymentReminderToStudent(pg, tenant);
       } else if (action === 'docs') {
         activeDocsTenantId = id;
         renderDocsModal();
@@ -4183,9 +4275,13 @@
         }
         clearFailedLogin(phone);
         addSecurityAudit(foundPg, `👤 ભાડૂઆત ${foundTenant.name} (રૂમ ${foundTenant.room}) લોગિન થયા`);
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().then(() => updateNotifButtonsUI()).catch(() => {});
+        }
         appState.session = { role: 'tenant', pgId: foundPg.id, tenantId: foundTenant.id };
-        saveState();
+        saveStateNow(foundPg.id);
         render();
+        checkStudentIncomingReminders(foundPg, foundTenant);
         showToast(`નમસ્તે ${foundTenant.name}! (${foundPg.name})`);
       }
     });
@@ -4892,8 +4988,10 @@
       populateSelfRegRooms(e.target.value);
     });
 
-    function openSelfProfileModal(mode) {
+    let ownerEditingTenantId = null;
+    function openSelfProfileModal(mode, targetTenantId) {
       selfProfileMode = mode;
+      ownerEditingTenantId = mode === 'owner-edit' ? targetTenantId : null;
       spPendingPhoto = null;
       spPendingAadhaarImg = null;
       document.getElementById('selfProfileForm').reset();
@@ -4902,22 +5000,38 @@
       document.getElementById('spFormError').classList.add('hidden');
 
       const pgWrap = document.getElementById('selfRegPgWrap');
+      const ownerWrap = document.getElementById('spOwnerFeePinWrap');
       if (mode === 'register') {
         document.getElementById('selfProfileTitle').textContent = '📝 નવા વિદ્યાર્થી જાતે રજીસ્ટ્રેશન કરો';
         document.getElementById('selfProfileSub').textContent = 'તમારી સંપૂર્ણ વિગત ભરીને સીધા તમારા PG માં જોડાઓ';
         pgWrap.classList.remove('hidden');
+        ownerWrap.classList.add('hidden');
         const pgSel = document.getElementById('spPgSelect');
         pgSel.innerHTML = appState.pgs.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
         populateSelfRegRooms(pgSel.value);
         document.getElementById('spPinInput').value = '111111';
         document.getElementById('spStateInput').value = 'ગુજરાત';
+        document.getElementById('spJoinDateInput').value = getTodayIsoDate();
       } else {
         const pg = getSessionPg();
-        const t = pg ? pg.tenants.find((item) => item.id === appState.session.tenantId) : null;
+        const lookupId = mode === 'owner-edit' ? ownerEditingTenantId : (appState.session && appState.session.tenantId);
+        const t = pg ? pg.tenants.find((item) => item.id === lookupId) : null;
         if (!t) return;
-        document.getElementById('selfProfileTitle').textContent = '✏️ મારી વિગત ભરો / અપડેટ કરો';
-        document.getElementById('selfProfileSub').textContent = `રૂમ ${t.room} • ${pg.name}`;
         pgWrap.classList.add('hidden');
+        if (mode === 'owner-edit') {
+          document.getElementById('selfProfileTitle').textContent = '✏️ વિદ્યાર્થી પ્રોફાઈલ એડિટ / PIN રીસેટ';
+          document.getElementById('selfProfileSub').textContent = `${t.name} • રૂમ ${t.room} • ${pg.name}`;
+          ownerWrap.classList.remove('hidden');
+          document.getElementById('spOwnerRoomInput').value = t.room || '';
+          document.getElementById('spOwnerPhoneInput').value = t.phone || '';
+          document.getElementById('spOwnerRentInput').value = String(t.rent || 0);
+          document.getElementById('spOwnerDepositInput').value = String(t.deposit || 0);
+          document.getElementById('spOwnerResetPinInput').value = '';
+        } else {
+          document.getElementById('selfProfileTitle').textContent = '✏️ મારી વિગત ભરો / અપડેટ કરો';
+          document.getElementById('selfProfileSub').textContent = `રૂમ ${t.room} • ${pg.name}`;
+          ownerWrap.classList.add('hidden');
+        }
         document.getElementById('spNameInput').value = t.name || '';
         document.getElementById('spAltPhoneInput').value = t.altPhone || '';
         document.getElementById('spAadhaarInput').value = t.aadhaar || '';
@@ -5012,16 +5126,27 @@
       if (selfProfileMode === 'register') {
         const pgId = document.getElementById('spPgSelect').value;
         const roomNo = document.getElementById('spRoomSelect').value;
-        const phone = document.getElementById('spPhoneInput').value.trim();
+        const phone = document.getElementById('spPhoneInput').value.replace(/\D/g, '').slice(-10);
         const pin = document.getElementById('spPinInput').value.trim();
-        if (phone.length < 10 || pin.length !== 6) {
+        if (phone.length !== 10 || !/^\d{6}$/.test(pin)) {
           errEl.textContent = '10 અંકનો મોબાઈલ નંબર અને 6 અંકનો PIN દાખલ કરો.';
           errEl.classList.remove('hidden');
           return;
         }
         const pg = appState.pgs.find((p) => p.id === pgId);
-        if (!pg) return;
-        const roomObj = getRoomObj(pg, roomNo);
+        if (!pg) {
+          errEl.textContent = 'PG મળ્યું નથી. પેજ રિફ્રેશ કરીને ફરી પ્રયત્ન કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (pg.tenants.some((x) => String(x.phone).replace(/\D/g, '').slice(-10) === phone)) {
+          errEl.textContent = 'આ મોબાઈલ નંબર પહેલેથી રજીસ્ટર છે! સીધા વિદ્યાર્થી લોગિનથી લોગિન કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().then(() => updateNotifButtonsUI()).catch(() => {});
+        }
         const docs = [];
         if (spPendingAadhaarImg) {
           docs.push({ id: 'doc_' + Date.now(), label: 'આધાર કાર્ડ', dataUrl: spPendingAadhaarImg, date: new Date().toLocaleDateString('en-IN') });
@@ -5030,20 +5155,69 @@
           id: 't_' + Date.now(),
           room: roomNo,
           phone,
-          pin,
-          rent: roomObj ? roomObj.bedRent : 7500,
-          deposit: 10000,
+          pin: fastHashPin(pin),
+          rent: 0,
+          deposit: 0,
+          feePendingSetup: true,
           paid: false,
           photo: spPendingPhoto || '',
           docs,
           ...commonFields
         };
+        if (!newTenant.joinDate) newTenant.joinDate = getTodayIsoDate();
         pg.tenants.unshift(newTenant);
         appState.session = { role: 'tenant', pgId: pg.id, tenantId: newTenant.id };
-        saveState();
+        if (window.location.hash && window.location.hash.startsWith('#register-pg=')) {
+          try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (ex) {}
+        }
         closeModal('selfProfileModal');
         render();
-        showToast(`રજીસ્ટ્રેશન સફળ! ${pg.name} (રૂમ ${roomNo}) માં સ્વાગત છે.`);
+        showToast(`✅ રજીસ્ટ્રેશન સફળ! ક્લાઉડમાં સેવ થાય છે... (${pg.name} • રૂમ ${roomNo})`);
+        saveStateNow(pg.id);
+      } else if (selfProfileMode === 'owner-edit') {
+        const pg = getSessionPg();
+        const t = pg ? pg.tenants.find((item) => item.id === ownerEditingTenantId) : null;
+        if (!t) return;
+        const newRoom = document.getElementById('spOwnerRoomInput').value.trim();
+        const newPhone = document.getElementById('spOwnerPhoneInput').value.replace(/\D/g, '').slice(-10);
+        const newRent = Number(document.getElementById('spOwnerRentInput').value);
+        const newDeposit = Number(document.getElementById('spOwnerDepositInput').value) || 0;
+        const resetPin = (document.getElementById('spOwnerResetPinInput').value || '').trim();
+        if (!newRoom || newPhone.length !== 10 || isNaN(newRent) || newRent < 0) {
+          errEl.textContent = 'રૂમ નંબર, 10 અંકનો મોબાઈલ અને માન્ય માસિક ફી દાખલ કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (resetPin && !/^\d{6}$/.test(resetPin)) {
+          errEl.textContent = 'નવો PIN બરાબર 6 અંકનો હોવો જોઈએ.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        Object.assign(t, commonFields);
+        t.room = newRoom;
+        t.phone = newPhone;
+        t.rent = newRent;
+        t.deposit = newDeposit;
+        if (newRent > 0) t.feePendingSetup = false;
+        if (!pg.rooms.some((r) => String(r.room) === String(newRoom))) {
+          pg.rooms.push({ room: newRoom, floor: 1, capacity: 2, bedRent: newRent || 6000, ac: false, hasMeter: false, prevReading: 0, currReading: 0 });
+        }
+        let pinMsg = '';
+        if (resetPin) {
+          t.pin = fastHashPin(resetPin);
+          clearFailedLogin(newPhone);
+          addSecurityAudit(pg, `🔑 માલિકે ${t.name} નો લોગિન PIN રીસેટ કર્યો`);
+          pinMsg = ' અને નવો PIN સેટ થઈ ગયો!';
+        }
+        if (spPendingPhoto) t.photo = spPendingPhoto;
+        if (spPendingAadhaarImg) {
+          if (!Array.isArray(t.docs)) t.docs = [];
+          t.docs.unshift({ id: 'doc_' + Date.now(), label: 'આધાર કાર્ડ', dataUrl: spPendingAadhaarImg, date: new Date().toLocaleDateString('en-IN') });
+        }
+        saveStateNow(pg.id);
+        closeModal('selfProfileModal');
+        render();
+        showToast(`✅ ${t.name} ની પ્રોફાઈલ અને ફી અપડેટ થઈ ગઈ${pinMsg}`);
       } else {
         const pg = getSessionPg();
         const t = pg ? pg.tenants.find((item) => item.id === appState.session.tenantId) : null;
@@ -5054,7 +5228,7 @@
           if (!Array.isArray(t.docs)) t.docs = [];
           t.docs.unshift({ id: 'doc_' + Date.now(), label: 'આધાર કાર્ડ', dataUrl: spPendingAadhaarImg, date: new Date().toLocaleDateString('en-IN') });
         }
-        saveState();
+        saveStateNow(pg.id);
         closeModal('selfProfileModal');
         render();
         showToast('તમારી સંપૂર્ણ વિગત અપડેટ થઈ ગઈ છે — હવે માલિકને પણ દેખાશે!');
@@ -5129,14 +5303,18 @@
         saveState();
         render();
         showToast(pg.isAllowed ? `✅ ${pg.name} ને લોગિનની મંજૂરી આપી.` : `🚫 ${pg.name} નું લોગિન બંધ (Block) કર્યું.`);
-      } else if (action === 'plan') {
+      } else if (action === 'plan' || action === 'reset-pin') {
         editingSaPlanPgId = pg.id;
-        document.getElementById('saPlanModalSub').textContent = `${pg.name} • માલિક: ${pg.owner}`;
+        document.getElementById('saPlanModalSub').textContent = `${pg.name} • માલિક: ${pg.owner} (${pg.ownerPhone})`;
         document.getElementById('saPlanStartInput').value = pg.planStartDate || getTodayIsoDate();
         document.getElementById('saPlanExpiryInput').value = pg.planExpiryDate || addDaysToIso(getTodayIsoDate(), 30);
         document.getElementById('saPgBedRateInput').value = String(pg.perBedFee || 50);
         document.getElementById('saPlanAllowedInput').checked = pg.isAllowed !== false;
+        document.getElementById('saResetOwnerPinInput').value = '';
         openModal('saPlanModal');
+        if (action === 'reset-pin') {
+          setTimeout(() => document.getElementById('saResetOwnerPinInput').focus(), 80);
+        }
       }
     });
 
@@ -5163,10 +5341,22 @@
       pg.planExpiryDate = document.getElementById('saPlanExpiryInput').value;
       pg.perBedFee = Number(document.getElementById('saPgBedRateInput').value) || 50;
       pg.isAllowed = document.getElementById('saPlanAllowedInput').checked;
-      saveState();
+      const newOwnerPin = (document.getElementById('saResetOwnerPinInput').value || '').trim();
+      let pinChanged = false;
+      if (newOwnerPin) {
+        if (!/^\d{6}$/.test(newOwnerPin)) {
+          showToast('PG માલિકનો નવો PIN બરાબર 6 અંકનો હોવો જોઈએ.');
+          return;
+        }
+        pg.ownerPin = fastHashPin(newOwnerPin);
+        clearFailedLogin(pg.ownerPhone);
+        addSecurityAudit(pg, '🔑 એપ માલિક દ્વારા PG માલિકનો PIN રીસેટ કરાયો');
+        pinChanged = true;
+      }
+      saveStateNow(pg.id);
       closeModal('saPlanModal');
       render();
-      showToast(`${pg.name} નો પ્લાન અને બેડ ચાર્જ અપડેટ થઈ ગયો!`);
+      showToast(pinChanged ? `✅ ${pg.name} નો પ્લાન અને માલિકનો નવો PIN સેવ થઈ ગયો!` : `${pg.name} નો પ્લાન અને બેડ ચાર્જ અપડેટ થઈ ગયો!`);
     });
 
     // Periodic Auto-Logout check (every 15 seconds)
@@ -5520,15 +5710,25 @@ ${url}`;
     }
 
     // Auto-open Tenant Self-Registration if opened via QR hash (#register-pg=...)
+    let pendingQrRegisterPgId = null;
     if (window.location.hash && window.location.hash.startsWith('#register-pg=')) {
-      const targetPgId = decodeURIComponent(window.location.hash.replace('#register-pg=', ''));
-      if (appState.pgs.some((p) => p.id === targetPgId)) {
-        appState.session = null;
-        render();
-        openSelfProfileModal('register');
-        document.getElementById('spPgSelect').value = targetPgId;
-        populateSelfRegRooms(targetPgId);
-      }
+      pendingQrRegisterPgId = decodeURIComponent(window.location.hash.replace('#register-pg=', ''));
+      appState.session = null;
+      saveLocalSafe();
+    }
+
+    function tryOpenPendingQrRegistration() {
+      if (!pendingQrRegisterPgId) return;
+      const targetPg = appState.pgs.find((p) => p.id === pendingQrRegisterPgId);
+      if (!targetPg) return;
+      const pid = pendingQrRegisterPgId;
+      pendingQrRegisterPgId = null;
+      appState.session = null;
+      render();
+      openSelfProfileModal('register');
+      document.getElementById('spPgSelect').value = pid;
+      populateSelfRegRooms(pid);
+      try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (ex) {}
     }
 
 
@@ -5861,9 +6061,15 @@ ${url}`;
             <div class="flex items-center justify-between gap-2 flex-wrap pt-1 border-t border-slate-100">
               ${statusBadge}
               <div class="flex items-center gap-2 flex-wrap">
-                ${cleanPhone.length === 10 ? `<a href="${waHref}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition">💬 WhatsApp</a>` : ''}
+                <button type="button" data-due-notify-id="${escapeHtml(t.id)}" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold transition cursor-pointer">
+                  🔔 રિમાઇન્ડર મોકલો
+                </button>
+                <button type="button" data-due-edit-id="${escapeHtml(t.id)}" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold transition cursor-pointer">
+                  ✏️ એડિટ
+                </button>
+                ${cleanPhone.length === 10 ? `<a href="${waHref}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition">💬 WA</a>` : ''}
                 <button type="button" data-due-paid-id="${escapeHtml(t.id)}" class="px-3.5 py-1.5 rounded-xl bg-teal-100 hover:bg-teal-200 text-teal-950 border border-teal-300 text-xs font-extrabold transition cursor-pointer">
-                  ✅ ફી મળી ગઈ (Paid)
+                  ✅ ફી મળી ગઈ
                 </button>
               </div>
             </div>
@@ -5894,7 +6100,7 @@ ${url}`;
 
     function checkAndFireDaily9AmNotifications(forceImmediateIfEligible) {
       if (!appState.session || !('Notification' in window) || Notification.permission !== 'granted') return;
-      const pg = getActivePg();
+      const pg = getSessionPg();
       if (!pg) return;
 
       const now = new Date();
@@ -5939,18 +6145,31 @@ ${url}`;
       const fBtn = e.target.closest('button[data-due-filter]');
       if (fBtn) {
         activeDueFilter = fBtn.dataset.dueFilter;
-        const pg = getActivePg();
+        const pg = getSessionPg();
         if (pg) renderOwnerDueFees(pg);
+        return;
+      }
+      const nBtn = e.target.closest('button[data-due-notify-id]');
+      if (nBtn) {
+        const pg = getSessionPg();
+        if (!pg) return;
+        const t = pg.tenants.find((x) => x.id === nBtn.dataset.dueNotifyId);
+        if (t) sendPaymentReminderToStudent(pg, t);
+        return;
+      }
+      const eBtn = e.target.closest('button[data-due-edit-id]');
+      if (eBtn) {
+        openSelfProfileModal('owner-edit', eBtn.dataset.dueEditId);
         return;
       }
       const pBtn = e.target.closest('button[data-due-paid-id]');
       if (pBtn) {
-        const pg = getActivePg();
+        const pg = getSessionPg();
         if (!pg) return;
         const t = pg.tenants.find((x) => x.id === pBtn.dataset.duePaidId);
         if (!t) return;
         t.paid = true;
-        saveState();
+        saveStateNow(pg.id);
         render();
         showToast(`✅ ${t.name} ની ફી જમા થઈ ગઈ અને બાકી લિસ્ટમાંથી દૂર કરાયા!`);
       }
@@ -5962,7 +6181,7 @@ ${url}`;
     document.getElementById('ownerTestNotifBtn').addEventListener('click', async () => {
       const ok = Notification.permission === 'granted' ? true : await requestAppNotificationPermission();
       if (!ok) return;
-      const pg = getActivePg();
+      const pg = getSessionPg();
       const { pending } = pg ? getPgDueTenants(pg) : { pending: [] };
       sendLocalPhoneNotification(
         '🔔 આપણું PG — ટેસ્ટ રિમાઇન્ડર',
@@ -5983,9 +6202,47 @@ ${url}`;
       if (!document.hidden) checkAndFireDaily9AmNotifications(false);
     });
 
-    // Initial Render + On-Demand Cloud Sync (Zero wasteful polling!)
+    // Fast 2-Second Live Sync (checks only 40-byte updated_at timestamp first to keep egress minimal!)
+    async function fastLiveSyncTick() {
+      if (!sbClient || document.hidden || isSyncInFlight || !appState.session) return;
+      const pgId = appState.session.pgId;
+      if (!pgId || appState.session.role === 'superadmin') return;
+      isSyncInFlight = true;
+      try {
+        const { data: meta, error } = await sbClient
+          .from('pg_accounts')
+          .select('updated_at')
+          .eq('id', pgId)
+          .maybeSingle();
+        if (!error && meta && meta.updated_at && lastKnownPgUpdatedAt[pgId] !== meta.updated_at) {
+          lastKnownPgUpdatedAt[pgId] = meta.updated_at;
+          await syncFromSupabase(true);
+          const pg = getSessionPg();
+          if (pg && appState.session && appState.session.role === 'tenant') {
+            const t = pg.tenants.find((x) => x.id === appState.session.tenantId);
+            if (t) checkStudentIncomingReminders(pg, t);
+          }
+        }
+      } catch (err) {
+        // Ignore transient network hiccups
+      } finally {
+        isSyncInFlight = false;
+      }
+    }
+    setInterval(fastLiveSyncTick, 2000);
+
+    // Initial Render + Cloud Sync + QR Auto-Open + Incoming Reminders
     render();
-    syncFromSupabase(false);
+    tryOpenPendingQrRegistration();
+    syncFromSupabase(false).then(() => {
+      tryOpenPendingQrRegistration();
+      checkAndFireDaily9AmNotifications(false);
+      const pg = getSessionPg();
+      if (pg && appState.session && appState.session.role === 'tenant') {
+        const t = pg.tenants.find((x) => x.id === appState.session.tenantId);
+        if (t) checkStudentIncomingReminders(pg, t);
+      }
+    });
   </script>
 </body>
 </html>
