@@ -342,6 +342,21 @@
         <section class="space-y-3.5">
           <h2 class="text-base font-extrabold text-slate-800 px-1">ઝડપી મેનુ (Quick Actions)</h2>
 
+          <!-- Highlight Quick Action: Today's & Overdue Pending Fees (Joining-Date Based) -->
+          <button type="button" data-qa="dueFees" class="w-full bg-gradient-to-r from-amber-50 via-rose-50 to-orange-50 hover:from-amber-100 hover:to-rose-100 rounded-3xl p-4 shadow-xs border-2 border-amber-200 flex items-center justify-between gap-3 text-left transition cursor-pointer">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-12 h-12 shrink-0 rounded-2xl bg-white border border-amber-200 flex items-center justify-center text-2xl shadow-2xs">🔔</span>
+              <div class="min-w-0">
+                <p class="text-sm font-extrabold text-slate-800 truncate">આજની બાકી ફી (Due Fees)</p>
+                <p id="qaDueFeesSubtitle" class="text-[11px] sm:text-xs text-slate-600 mt-0.5 truncate">જોઇનિંગ તારીખ મુજબ આજની અને બાકી ફીનું લિસ્ટ</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span id="qaDueFeesDot" class="px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-200">0 બાકી</span>
+              <span class="text-slate-500 font-bold text-sm">→</span>
+            </div>
+          </button>
+
           <!-- Group 1: Tenants & Beds -->
           <div class="bg-white rounded-3xl p-4 shadow-xs border-2 border-teal-100 grid grid-cols-4 gap-2 sm:gap-3 text-center">
             <button type="button" data-qa="add-tenant" class="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-sky-50 transition cursor-pointer">
@@ -822,6 +837,50 @@
       </div>
 
       <!-- FIXED BOTTOM NAVIGATION BAR FOR OWNER -->
+      <!-- NEW PAGE: JOINING-DATE BASED DUE FEES & DAILY 9 AM REMINDER -->
+      <div id="dueFeesSection" class="hidden space-y-4">
+        <section class="bg-gradient-to-r from-sky-50 to-amber-50 rounded-3xl p-4 sm:p-5 border border-sky-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <h3 class="text-sm sm:text-base font-extrabold text-slate-800">🔔 સવારે 9:00 ફી રિમાઇન્ડર (જોઇનિંગ તારીખ મુજબ)</h3>
+            <p id="ownerNotifStatusText" class="text-xs text-slate-600">જ્યાં સુધી ફી જમા ન થાય ત્યાં સુધી વિદ્યાર્થી આ લિસ્ટમાં રહેશે અને રોજ સવારે 9:00 વાગ્યે રિમાઇન્ડર મળશે.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="ownerEnableNotifBtn" type="button" class="px-3.5 py-2 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 text-xs font-bold transition cursor-pointer">
+              🔔 નોટિફિકેશન ચાલુ કરો
+            </button>
+            <button id="ownerTestNotifBtn" type="button" class="px-3 py-2 rounded-xl bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold transition cursor-pointer">
+              🧪 ટેસ્ટ
+            </button>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-3 gap-2.5 sm:gap-4">
+          <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-amber-200">
+            <p class="text-[11px] sm:text-xs font-semibold text-amber-800">📅 આજે તારીખ</p>
+            <p id="dueTodayCount" class="text-xl sm:text-2xl font-extrabold text-amber-700 mt-1">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-rose-200">
+            <p class="text-[11px] sm:text-xs font-semibold text-rose-800">⏰ મુદત વીતી</p>
+            <p id="dueOverdueCount" class="text-xl sm:text-2xl font-extrabold text-rose-700 mt-1">0</p>
+          </div>
+          <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-sky-200">
+            <p class="text-[11px] sm:text-xs font-semibold text-sky-800">💰 કુલ બાકી</p>
+            <p id="dueTotalAmount" class="text-lg sm:text-2xl font-extrabold text-sky-900 mt-1">₹0</p>
+          </div>
+        </section>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" data-due-filter="pending" class="due-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300 cursor-pointer transition">
+            🔔 આજની અને બાકી ફી
+          </button>
+          <button type="button" data-due-filter="upcoming" class="due-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-sky-50 cursor-pointer transition">
+            📆 આગામી તારીખો
+          </button>
+        </div>
+
+        <div id="dueFeesList" class="space-y-3"></div>
+      </div>
+
       <nav id="ownerBottomNav" aria-label="નીચેનું નેવિગેશન" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md bg-white/95 backdrop-blur-md border-2 border-teal-200 rounded-3xl shadow-lg px-2 py-1.5 grid grid-cols-4 gap-1">
         <button type="button" data-bnav="home" class="bnav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-[11px] font-bold bg-teal-100 text-teal-950 cursor-pointer transition">
           <span class="text-base leading-none">🏠</span>
@@ -882,6 +941,14 @@
     <!-- ==================== TENANT VIEW ==================== -->
     <main id="tenantView" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
       <div id="tenantDashboardContent" class="space-y-6">
+        <!-- Daily 9:00 AM Payment Reminder Banner (Shown on Joining Day & Every Day Until Paid) -->
+        <section id="tenantDueReminderBanner" class="hidden bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border-2 border-rose-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p id="tenantDueReminderTitle" class="text-sm font-extrabold text-rose-900">🔔 માસિક ફી રિમાઇન્ડર — ભાડું બાકી છે</p>
+            <p id="tenantDueReminderDesc" class="text-xs text-slate-700 leading-relaxed"></p>
+          </div>
+          <span id="tenantDueReminderBadge" class="shrink-0 self-start sm:self-center px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-200">આજે બાકી</span>
+        </section>
         <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="space-y-1.5">
             <div class="flex items-center gap-2 flex-wrap">
@@ -910,6 +977,10 @@
               <button id="tenantViewRulesBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition cursor-pointer">
                 <span aria-hidden="true">📜</span>
                 <span>PG નિયમો</span>
+              </button>
+              <button id="tenantEnableNotifBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-bold transition cursor-pointer">
+                <span aria-hidden="true">🔔</span>
+                <span id="tenantEnableNotifLabel">9:00 AM રિમાઇન્ડર ચાલુ કરો</span>
               </button>
             </div>
           </div>
@@ -2853,7 +2924,8 @@
         qr: '📲 ભાડૂઆત રજીસ્ટ્રેશન QR કોડ',
         expenses: '🧾 PG ખર્ચનો હિસાબ',
         notices: '📢 PG સૂચના બોર્ડ',
-        myplan: '💳 મારો માસિક પ્લાન'
+        myplan: '💳 મારો માસિક પ્લાન',
+        dueFees: '🔔 આજની બાકી ફી (જોઇનિંગ તારીખ મુજબ)'
       };
 
       const subBar = document.getElementById('ownerSubPageBar');
@@ -2879,7 +2951,8 @@
         qr: document.getElementById('qrSection'),
         expenses: document.getElementById('expensesSection'),
         notices: document.getElementById('noticesSection'),
-        myplan: document.getElementById('myplanSection')
+        myplan: document.getElementById('myplanSection'),
+        dueFees: document.getElementById('dueFeesSection')
       };
       Object.keys(sections).forEach((key) => {
         if (key === activeTab) sections[key].classList.remove('hidden');
@@ -2897,6 +2970,8 @@
       if (activeTab === 'expenses') renderPgExpenses(pg);
       if (activeTab === 'notices') renderPgNotices(pg);
       if (activeTab === 'myplan') renderOwnerMyPlan(pg, totalOccupied);
+      updateOwnerDueFeesBadge(pg);
+      if (activeTab === 'dueFees') renderOwnerDueFees(pg);
 
       document.querySelectorAll('.tab-btn').forEach((btn) => {
         const isActive = btn.dataset.tab === activeTab;
@@ -3497,6 +3572,7 @@
       document.getElementById('tenantPgSubtitle').textContent = `${pg.name} • ${pg.currentMonth} • માલિક: ${pg.owner}`;
       document.getElementById('tenantTotalPayable').textContent = formatRupees(totalPayable);
       document.getElementById('tenantDepositText').textContent = `જમા ડિપોઝિટ: ${formatRupees(activeTenant.deposit)}`;
+      renderTenantDueReminder(pg, activeTenant, totalPayable);
       document.getElementById('tenantRentAmount').textContent = formatRupees(activeTenant.rent);
       document.getElementById('tenantElecAmount').textContent = formatRupees(roomElec.perStudentBill);
       document.getElementById('tenantElecDetail').textContent = roomElec.hasMeter
@@ -5527,7 +5603,7 @@ ${url}`;
       }
     });
     document.getElementById('manualSyncBtn').addEventListener('click', () => {
-      syncFromSupabase(false);
+      syncFromSupabase(false).then(() => checkAndFireDaily9AmNotifications(false));
       showToast('ક્લાઉડમાંથી તાજો ડેટા રિફ્રેશ થઈ રહ્યો છે...');
     });
 
@@ -5559,6 +5635,353 @@ ${url}`;
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
+
+    // ==================== JOINING-DATE DUE FEES & DAILY 9:00 AM REMINDER ENGINE ====================
+    let activeDueFilter = 'pending';
+
+    function getTenantDueInfo(tenant, refDate) {
+      const now = refDate || new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const todayDay = now.getDate();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let joinDay = 1;
+      let hasJoinDate = false;
+      if (tenant && typeof tenant.joinDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(tenant.joinDate.trim())) {
+        const parts = tenant.joinDate.trim().split('-');
+        const parsedDay = parseInt(parts[2], 10);
+        if (!isNaN(parsedDay) && parsedDay >= 1 && parsedDay <= 31) {
+          joinDay = parsedDay;
+          hasJoinDate = true;
+        }
+      }
+      const dueDayThisMonth = Math.min(joinDay, daysInMonth);
+      const diffDays = todayDay - dueDayThisMonth;
+      const isPaid = Boolean(tenant && tenant.paid);
+
+      return {
+        joinDay,
+        hasJoinDate,
+        dueDayThisMonth,
+        todayDay,
+        diffDays,
+        isPaid,
+        isDueToday: !isPaid && diffDays === 0,
+        isOverdue: !isPaid && diffDays > 0,
+        isPendingDue: !isPaid && diffDays >= 0,
+        isUpcoming: !isPaid && diffDays < 0,
+        overdueDays: diffDays > 0 ? diffDays : 0,
+        daysUntilDue: diffDays < 0 ? -diffDays : 0
+      };
+    }
+
+    function getPgDueTenants(pg) {
+      const now = new Date();
+      const pending = [];
+      const upcoming = [];
+      (pg.tenants || []).forEach((t) => {
+        const info = getTenantDueInfo(t, now);
+        const roomElec = calcRoomElectricity(pg, t.room);
+        const totalDue = (Number(t.rent) || 0) + (roomElec ? roomElec.perStudentBill : 0);
+        if (info.isPendingDue) {
+          pending.push({ tenant: t, info, totalDue, elecBill: roomElec ? roomElec.perStudentBill : 0 });
+        } else if (info.isUpcoming) {
+          upcoming.push({ tenant: t, info, totalDue, elecBill: roomElec ? roomElec.perStudentBill : 0 });
+        }
+      });
+      // Sort pending: due today first, then most overdue
+      pending.sort((a, b) => (a.info.isDueToday === b.info.isDueToday ? b.info.overdueDays - a.info.overdueDays : (a.info.isDueToday ? -1 : 1)));
+      upcoming.sort((a, b) => a.info.daysUntilDue - b.info.daysUntilDue);
+      return { pending, upcoming };
+    }
+
+    function updateOwnerDueFeesBadge(pg) {
+      const { pending } = getPgDueTenants(pg);
+      const dot = document.getElementById('qaDueFeesDot');
+      const sub = document.getElementById('qaDueFeesSubtitle');
+      if (!dot) return;
+      const todayCnt = pending.filter((x) => x.info.isDueToday).length;
+      const overCnt = pending.filter((x) => x.info.isOverdue).length;
+      if (pending.length > 0) {
+        dot.textContent = `${pending.length} બાકી`;
+        dot.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-200';
+        if (sub) sub.textContent = `આજે: ${todayCnt} • મુદત વીતી: ${overCnt} — ચૂકવે એટલે લિસ્ટમાંથી નીકળી જશે`;
+      } else {
+        dot.textContent = '✓ બધા જમા';
+        dot.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200';
+        if (sub) sub.textContent = 'આજની કોઈ ફી બાકી નથી!';
+      }
+    }
+
+    function updateNotifButtonsUI() {
+      const supported = ('Notification' in window);
+      const perm = supported ? Notification.permission : 'unsupported';
+      const ownerBtn = document.getElementById('ownerEnableNotifBtn');
+      const ownerStatus = document.getElementById('ownerNotifStatusText');
+      if (ownerBtn) {
+        if (perm === 'granted') {
+          ownerBtn.textContent = '✅ 9:00 AM નોટિફિકેશન ચાલુ';
+          ownerBtn.className = 'px-3.5 py-2 rounded-xl bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold transition cursor-pointer';
+        } else if (perm === 'denied') {
+          ownerBtn.textContent = '🚫 બ્રાઉઝરમાં બ્લોક છે';
+          ownerBtn.className = 'px-3.5 py-2 rounded-xl bg-rose-100 text-rose-900 border border-rose-300 text-xs font-bold transition cursor-pointer';
+        } else {
+          ownerBtn.textContent = '🔔 નોટિફિકેશન ચાલુ કરો';
+          ownerBtn.className = 'px-3.5 py-2 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 text-xs font-bold transition cursor-pointer';
+        }
+      }
+      if (ownerStatus && perm === 'denied') {
+        ownerStatus.textContent = 'તમારા ફોન/Chrome સેટિંગ્સમાં Notifications "Allow" કરો જેથી સવારે 9:00 વાગ્યે રિમાઇન્ડર મળે.';
+      }
+      const tLbl = document.getElementById('tenantEnableNotifLabel');
+      const tBtn = document.getElementById('tenantEnableNotifBtn');
+      if (tLbl && tBtn) {
+        if (perm === 'granted') {
+          tLbl.textContent = '9:00 AM રિમાઇન્ડર ચાલુ ✓';
+          tBtn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold transition cursor-pointer';
+        } else {
+          tLbl.textContent = '9:00 AM રિમાઇન્ડર ચાલુ કરો';
+          tBtn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-bold transition cursor-pointer';
+        }
+      }
+    }
+
+    async function requestAppNotificationPermission() {
+      if (!('Notification' in window)) {
+        showToast('આ બ્રાઉઝરમાં નોટિફિકેશન સપોર્ટ નથી. Chrome માં એપ ખોલો.');
+        return false;
+      }
+      if (Notification.permission === 'granted') {
+        updateNotifButtonsUI();
+        showToast('સવારે 9:00 વાગ્યાનું ફી રિમાઇન્ડર પહેલેથી જ ચાલુ છે!');
+        return true;
+      }
+      try {
+        const res = await Notification.requestPermission();
+        updateNotifButtonsUI();
+        if (res === 'granted') {
+          showToast('✅ સવારે 9:00 વાગ્યાનું દૈનિક ફી રિમાઇન્ડર ચાલુ થઈ ગયું!');
+          checkAndFireDaily9AmNotifications(true);
+          return true;
+        }
+        showToast('નોટિફિકેશન પરમિશન ન મળી. બ્રાઉઝર સેટિંગ્સમાંથી Allow કરો.');
+        return false;
+      } catch (err) {
+        showToast('નોટિફિકેશન ચાલુ કરવામાં સમસ્યા આવી.');
+        return false;
+      }
+    }
+
+    async function sendLocalPhoneNotification(title, body, tag) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const opts = {
+        body,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        tag: tag || 'aapnu-pg-fee-reminder',
+        renotify: true
+      };
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.ready;
+          if (reg && typeof reg.showNotification === 'function') {
+            await reg.showNotification(title, opts);
+            return;
+          }
+        }
+        new Notification(title, opts);
+      } catch (err) {
+        // Silent fallback
+      }
+    }
+
+    function renderOwnerDueFees(pg) {
+      updateNotifButtonsUI();
+      const { pending, upcoming } = getPgDueTenants(pg);
+      const todayCnt = pending.filter((x) => x.info.isDueToday).length;
+      const overCnt = pending.filter((x) => x.info.isOverdue).length;
+      const totalAmt = pending.reduce((sum, x) => sum + x.totalDue, 0);
+
+      document.getElementById('dueTodayCount').textContent = String(todayCnt);
+      document.getElementById('dueOverdueCount').textContent = String(overCnt);
+      document.getElementById('dueTotalAmount').textContent = formatRupees(totalAmt);
+
+      document.querySelectorAll('.due-filter-btn').forEach((btn) => {
+        const isAct = btn.dataset.dueFilter === activeDueFilter;
+        btn.className = isAct
+          ? 'due-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300 cursor-pointer transition'
+          : 'due-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-sky-50 cursor-pointer transition';
+      });
+
+      const listEl = document.getElementById('dueFeesList');
+      const items = activeDueFilter === 'pending' ? pending : upcoming;
+
+      if (items.length === 0) {
+        listEl.innerHTML = activeDueFilter === 'pending'
+          ? `<div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center space-y-1">
+               <p class="text-2xl">🎉</p>
+               <p class="text-sm font-extrabold text-emerald-900">આજે કોઈ ભાડૂઆતની ફી બાકી નથી!</p>
+               <p class="text-xs text-emerald-700">જેમ જેમ ભાડૂઆતની જોઇનિંગ તારીખ આવશે તેમ તેમ અહીં આપોઆપ દેખાશે.</p>
+             </div>`
+          : `<div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">આ મહિનાની આગામી તારીખમાં કોઈ બાકી ફી નથી.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = items.map(({ tenant: t, info, totalDue, elecBill }) => {
+        const statusBadge = info.isDueToday
+          ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-900 border border-amber-200">📅 આજે ફીનો દિવસ (તારીખ ${info.dueDayThisMonth})</span>`
+          : info.isOverdue
+            ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-800 border border-rose-200">⏰ ${info.overdueDays} દિવસ મોડું (તારીખ ${info.dueDayThisMonth})</span>`
+            : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-100 text-sky-900 border border-sky-200">📆 ${info.daysUntilDue} દિવસ બાકી (તારીખ ${info.dueDayThisMonth})</span>`;
+
+        const joinLabel = info.hasJoinDate ? `જોઇનિંગ: ${escapeHtml(t.joinDate)}` : 'જોઇનિંગ તારીખ સેટ નથી (ડિફોલ્ટ 1 તારીખ)';
+        const elecText = elecBill > 0 ? ` (ભાડું ${formatRupees(t.rent)} + વીજળી ${formatRupees(elecBill)})` : '';
+        const waMsg = encodeURIComponent(
+          `નમસ્તે ${t.name},\n${pg.name} (રૂમ ${t.room}) ની તમારી માસિક ફી ${formatRupees(totalDue)} બાકી છે (જોઇનિંગ તારીખ: દર મહિનાની ${info.joinDay} તારીખ).\nકૃપા કરીને આજે જ ફી ચૂકવી આપશો. આભાર!`
+        );
+        const cleanPhone = String(t.phone || '').replace(/\D/g, '').slice(-10);
+        const waHref = cleanPhone.length === 10 ? `https://wa.me/91${cleanPhone}?text=${waMsg}` : '#';
+
+        return `
+          <div class="bg-white rounded-2xl p-4 shadow-xs border ${info.isOverdue ? 'border-rose-200' : info.isDueToday ? 'border-amber-200' : 'border-slate-200'} space-y-3">
+            <div class="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="text-sm sm:text-base font-extrabold text-slate-800">${escapeHtml(t.name)}</h4>
+                  <span class="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200">રૂમ ${escapeHtml(t.room)}${t.bed ? ' • ' + escapeHtml(t.bed) : ''}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">📞 ${escapeHtml(t.phone || '-')} • ${joinLabel}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-base sm:text-lg font-extrabold text-rose-700">${formatRupees(totalDue)}</p>
+                <p class="text-[10px] text-slate-400">${elecText || 'માસિક ભાડું'}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2 flex-wrap pt-1 border-t border-slate-100">
+              ${statusBadge}
+              <div class="flex items-center gap-2 flex-wrap">
+                ${cleanPhone.length === 10 ? `<a href="${waHref}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition">💬 WhatsApp</a>` : ''}
+                <button type="button" data-due-paid-id="${escapeHtml(t.id)}" class="px-3.5 py-1.5 rounded-xl bg-teal-100 hover:bg-teal-200 text-teal-950 border border-teal-300 text-xs font-extrabold transition cursor-pointer">
+                  ✅ ફી મળી ગઈ (Paid)
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTenantDueReminder(pg, tenant, totalPayable) {
+      updateNotifButtonsUI();
+      const banner = document.getElementById('tenantDueReminderBanner');
+      if (!banner) return;
+      const info = getTenantDueInfo(tenant, new Date());
+      if (info.isPendingDue) {
+        banner.classList.remove('hidden');
+        document.getElementById('tenantDueReminderTitle').textContent = info.isDueToday
+          ? `🔔 આજે તમારી માસિક ફીની તારીખ છે (દર મહિનાની ${info.dueDayThisMonth} તારીખ)`
+          : `🔔 માસિક ફી બાકી રિમાઇન્ડર (${info.overdueDays} દિવસ મોડું)`;
+        document.getElementById('tenantDueReminderDesc').textContent =
+          `${pg.name} ની તમારી ફી ${formatRupees(totalPayable)} બાકી છે. જ્યાં સુધી ફી જમા ન થાય ત્યાં સુધી રોજ સવારે 9:00 વાગ્યે રિમાઇન્ડર ચાલુ રહેશે.`;
+        document.getElementById('tenantDueReminderBadge').textContent = info.isDueToday
+          ? 'આજે બાકી'
+          : `${info.overdueDays} દિવસ બાકી`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function checkAndFireDaily9AmNotifications(forceImmediateIfEligible) {
+      if (!appState.session || !('Notification' in window) || Notification.permission !== 'granted') return;
+      const pg = getActivePg();
+      if (!pg) return;
+
+      const now = new Date();
+      // Fire daily at or after 9:00 AM local time
+      if (!forceImmediateIfEligible && now.getHours() < 9) return;
+      const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+      if (appState.session.role === 'tenant') {
+        const t = pg.tenants.find((x) => x.id === appState.session.tenantId);
+        if (!t || t.paid) return;
+        const info = getTenantDueInfo(t, now);
+        if (!info.isPendingDue) return;
+        const notifKey = `aapnu_pg_9am_tenant_${pg.id}_${t.id}_${todayIso}`;
+        if (localStorage.getItem(notifKey)) return;
+        const roomElec = calcRoomElectricity(pg, t.room);
+        const totalPayable = (Number(t.rent) || 0) + (roomElec ? roomElec.perStudentBill : 0);
+        const dayMsg = info.isDueToday ? 'આજે તમારી જોઇનિંગ તારીખ છે.' : `તમારી ફી ${info.overdueDays} દિવસથી બાકી છે.`;
+        sendLocalPhoneNotification(
+          `🔔 ફી બાકી રિમાઇન્ડર — ${pg.name}`,
+          `${t.name}, ${dayMsg} કુલ ${formatRupees(totalPayable)} બાકી છે. કૃપા કરીને PG માલિકને ચૂકવી દો.`,
+          `tenant-due-${t.id}`
+        );
+        localStorage.setItem(notifKey, '1');
+      } else if (appState.session.role === 'owner') {
+        const { pending } = getPgDueTenants(pg);
+        if (pending.length === 0) return;
+        const notifKey = `aapnu_pg_9am_owner_${pg.id}_${todayIso}`;
+        if (localStorage.getItem(notifKey)) return;
+        const totalAmt = pending.reduce((sum, x) => sum + x.totalDue, 0);
+        const names = pending.slice(0, 3).map((x) => x.tenant.name).join(', ');
+        sendLocalPhoneNotification(
+          `🔔 આજની બાકી ફી (${pending.length} ભાડૂઆત)`,
+          `${pg.name}: ${names}${pending.length > 3 ? ' વગેરે' : ''} — કુલ ${formatRupees(totalAmt)} ફી લેવાની બાકી છે.`,
+          `owner-due-${pg.id}`
+        );
+        localStorage.setItem(notifKey, '1');
+      }
+    }
+
+    // Due Fees Page Events
+    document.getElementById('dueFeesSection').addEventListener('click', (e) => {
+      const fBtn = e.target.closest('button[data-due-filter]');
+      if (fBtn) {
+        activeDueFilter = fBtn.dataset.dueFilter;
+        const pg = getActivePg();
+        if (pg) renderOwnerDueFees(pg);
+        return;
+      }
+      const pBtn = e.target.closest('button[data-due-paid-id]');
+      if (pBtn) {
+        const pg = getActivePg();
+        if (!pg) return;
+        const t = pg.tenants.find((x) => x.id === pBtn.dataset.duePaidId);
+        if (!t) return;
+        t.paid = true;
+        saveState();
+        render();
+        showToast(`✅ ${t.name} ની ફી જમા થઈ ગઈ અને બાકી લિસ્ટમાંથી દૂર કરાયા!`);
+      }
+    });
+
+    document.getElementById('ownerEnableNotifBtn').addEventListener('click', () => {
+      requestAppNotificationPermission();
+    });
+    document.getElementById('ownerTestNotifBtn').addEventListener('click', async () => {
+      const ok = Notification.permission === 'granted' ? true : await requestAppNotificationPermission();
+      if (!ok) return;
+      const pg = getActivePg();
+      const { pending } = pg ? getPgDueTenants(pg) : { pending: [] };
+      sendLocalPhoneNotification(
+        '🔔 આપણું PG — ટેસ્ટ રિમાઇન્ડર',
+        pending.length > 0
+          ? `હાલમાં ${pending.length} ભાડૂઆતોની ફી લેવાની બાકી છે.`
+          : 'નોટિફિકેશન બરાબર કામ કરે છે! સવારે 9:00 વાગ્યે રિમાઇન્ડર મળશે.',
+        'aapnu-pg-test'
+      );
+      showToast('ટેસ્ટ નોટિફિકેશન મોકલાયું!');
+    });
+    document.getElementById('tenantEnableNotifBtn').addEventListener('click', () => {
+      requestAppNotificationPermission();
+    });
+
+    // Check every 60 seconds and on app resume for 9:00 AM daily reminder
+    setInterval(() => { checkAndFireDaily9AmNotifications(false); }, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkAndFireDaily9AmNotifications(false);
+    });
 
     // Initial Render + On-Demand Cloud Sync (Zero wasteful polling!)
     render();

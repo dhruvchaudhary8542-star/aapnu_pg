@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aapnu-pg-pwa-v2';
+const CACHE_NAME = 'aapnu-pg-pwa-v3';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -22,5 +22,17 @@ self.addEventListener('fetch', (event) => {
   if (url.includes('supabase.co')) return;
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const c of clients) {
+        if ('focus' in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow('./');
+    })
   );
 });
