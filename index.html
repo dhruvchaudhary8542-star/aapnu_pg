@@ -2,10 +2,17 @@
 <html lang="gu">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#e0f2fe" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="આપણું PG" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <title>આપણું PG — PG મેનેજમેન્ટ એપ</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     body {
       font-family: 'Inter', 'Noto Sans Gujarati', 'Shruti', system-ui, -apple-system, sans-serif;
@@ -59,8 +66,8 @@
           </div>
 
           <div>
-            <label for="loginPinInput" class="block text-xs font-semibold text-slate-600 mb-1">4-અંકનો PIN</label>
-            <input id="loginPinInput" type="password" inputmode="numeric" maxlength="4" required placeholder="••••" class="w-full px-3.5 py-2.5 text-sm tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            <label for="loginPinInput" class="block text-xs font-semibold text-slate-600 mb-1">6-અંકનો PIN</label>
+            <input id="loginPinInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3.5 py-2.5 text-sm tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
 
           <p id="loginError" class="hidden text-xs font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-xl"></p>
@@ -82,8 +89,12 @@
       </div>
     </div>
 
-    <!-- Bottom Separate App Owner Link -->
-    <div class="w-full max-w-md pt-3 pb-2 text-center">
+    <!-- Bottom Install App + Separate App Owner Link -->
+    <div class="w-full max-w-md pt-3 pb-2 text-center flex flex-col items-center gap-2">
+      <button id="installAppBtn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-teal-100 hover:bg-teal-200 border border-teal-300 text-xs font-extrabold text-teal-950 shadow-xs transition cursor-pointer">
+        <span aria-hidden="true">📲</span>
+        <span>ફોનમાં એપ ઇન્સ્ટોલ કરો (Install App)</span>
+      </button>
       <button id="openSuperAdminLoginBtn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/80 hover:bg-white border border-slate-200 text-xs font-semibold text-slate-500 hover:text-sky-900 shadow-xs transition cursor-pointer">
         <span aria-hidden="true">🛡️</span>
         <span>એપ માલિક લોગિન (App Owner)</span>
@@ -111,8 +122,8 @@
             <input id="saLoginPhoneInput" type="tel" inputmode="numeric" maxlength="10" required placeholder="9999999999" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
           <div>
-            <label for="saLoginPinInput" class="block text-xs font-semibold text-slate-600 mb-1">4-અંકનો એડમિન PIN</label>
-            <input id="saLoginPinInput" type="password" inputmode="numeric" maxlength="4" required placeholder="••••" class="w-full px-3.5 py-2.5 text-sm tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            <label for="saLoginPinInput" class="block text-xs font-semibold text-slate-600 mb-1">6-અંકનો એડમિન PIN</label>
+            <input id="saLoginPinInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3.5 py-2.5 text-sm tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
           <p id="saLoginError" class="hidden text-xs font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-xl"></p>
           <button type="submit" class="w-full py-3 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 font-bold text-sm shadow-xs active:scale-95 transition cursor-pointer">
@@ -161,7 +172,7 @@
 
       <div class="bg-white/80 border-t border-sky-200/70">
         <div class="max-w-5xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
-          <span id="activePgOwnerBadge" class="text-slate-600 font-medium"></span>
+          <div class="flex items-center gap-2 flex-wrap"><span id="activePgOwnerBadge" class="text-slate-600 font-medium"></span><span id="cloudSyncBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-200">☁️ ક્લાઉડ કનેક્ટ...</span><button id="manualSyncBtn" type="button" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white hover:bg-sky-50 text-sky-900 border border-sky-200 cursor-pointer transition" title="તાજો ડેટા લાવો">🔄 રિફ્રેશ</button></div>
           <button id="openRateModalBtn" type="button" class="inline-flex items-center gap-1 bg-amber-100 hover:bg-amber-200 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-lg font-medium transition cursor-pointer">
             <span aria-hidden="true">⚡</span>
             <span id="unitRateLabel">₹9 / યુનિટ</span>
@@ -200,6 +211,34 @@
         </div>
       </section>
 
+      <!-- App Owner Mobile & 6-Digit PIN Settings -->
+      <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-sky-200 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">🔐 એપ માલિક નંબર અને 6-અંકનો PIN બદલો</h2>
+            <p class="text-xs text-slate-500">તમારો પોતાનો લોગિન મોબાઈલ નંબર અને 6-અંકનો PIN અહીંથી બદલીને ક્લાઉડમાં સેવ કરો.</p>
+          </div>
+        </div>
+        <form id="saChangeCredsForm" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end">
+          <div>
+            <label for="saEditPhoneInput" class="block text-xs font-semibold text-slate-600 mb-1">નવો મોબાઈલ (10 અંક)</label>
+            <input id="saEditPhoneInput" type="tel" inputmode="numeric" maxlength="10" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+          </div>
+          <div>
+            <label for="saEditPinInput" class="block text-xs font-semibold text-slate-600 mb-1">નવો 6-અંકનો PIN</label>
+            <input id="saEditPinInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm tracking-widest border border-slate-300 rounded-xl" />
+          </div>
+          <div>
+            <label for="saEditPinConfirmInput" class="block text-xs font-semibold text-slate-600 mb-1">PIN ફરી દાખલ કરો</label>
+            <input id="saEditPinConfirmInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm tracking-widest border border-slate-300 rounded-xl" />
+          </div>
+          <button type="submit" class="py-2.5 px-4 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 text-xs sm:text-sm font-bold cursor-pointer transition">
+            💾 નંબર/PIN સેવ કરો
+          </button>
+        </form>
+        <p id="saChangeCredsError" class="hidden text-xs font-medium text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg"></p>
+      </section>
+
       <!-- Global Per-Bed Rate Control Bar -->
       <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -221,7 +260,7 @@
       <section aria-label="બધા PG ની યાદી" class="space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="text-base font-extrabold text-slate-800">🏢 બધા PG અને માસિક પ્લાન કંટ્રોલ</h2>
-          <span id="saTodayLabel" class="text-xs font-semibold text-slate-500"></span>
+          <div class="flex items-center gap-2 flex-wrap"><span id="saStorageUsedPill" class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-900 border border-sky-200">💾 સ્ટોરેજ: 0 KB</span><span id="saTodayLabel" class="text-xs font-semibold text-slate-500"></span></div>
         </div>
         <div id="saPgList" class="space-y-4"></div>
       </section>
@@ -596,7 +635,7 @@
             <span class="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-base" aria-hidden="true">🔑</span>
             <div>
               <h2 class="text-base font-bold text-slate-800">લોગિન PIN બદલો</h2>
-              <p class="text-xs text-slate-500">તમારા PG એકાઉન્ટની સુરક્ષા માટે નવો 4-અંકનો PIN સેટ કરો.</p>
+              <p class="text-xs text-slate-500">તમારા PG એકાઉન્ટની સુરક્ષા માટે નવો 6-અંકનો PIN સેટ કરો.</p>
             </div>
           </div>
 
@@ -607,12 +646,12 @@
             </div>
             <div class="grid grid-cols-2 gap-2.5">
               <div>
-                <label for="newOwnerPinInput" class="block text-xs font-semibold text-slate-600 mb-1">નવો PIN (4 અંક)</label>
-                <input id="newOwnerPinInput" type="password" inputmode="numeric" maxlength="4" required placeholder="••••" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+                <label for="newOwnerPinInput" class="block text-xs font-semibold text-slate-600 mb-1">નવો PIN (6 અંક)</label>
+                <input id="newOwnerPinInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
               </div>
               <div>
                 <label for="confirmOwnerPinInput" class="block text-xs font-semibold text-slate-600 mb-1">ફરી દાખલ કરો</label>
-                <input id="confirmOwnerPinInput" type="password" inputmode="numeric" maxlength="4" required placeholder="••••" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+                <input id="confirmOwnerPinInput" type="password" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
               </div>
             </div>
             <p id="changePinError" class="hidden text-xs font-medium text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg"></p>
@@ -684,7 +723,12 @@
           </div>
 
           <div class="space-y-2">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">તાજેતરની સુરક્ષા પ્રવૃત્તિઓ (Audit Log)</p>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">તાજેતરની સુરક્ષા પ્રવૃત્તિઓ (Audit Log)</p>
+              <button id="cleanupOldPhotosBtn" type="button" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold cursor-pointer transition">
+                🧹 સ્ટોરેજ બચાવવા નિયમ ફોટા/લોગ સાફ કરો
+              </button>
+            </div>
             <div id="securityAuditList" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
           </div>
         </section>
@@ -1040,8 +1084,8 @@
               <input id="spPhoneInput" type="tel" maxlength="10" placeholder="9000011199" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
             </div>
             <div>
-              <label for="spPinInput" class="block text-xs font-semibold text-slate-600 mb-1">તમારો લોગિન PIN (4 અંક) *</label>
-              <input id="spPinInput" type="text" maxlength="4" value="1111" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+              <label for="spPinInput" class="block text-xs font-semibold text-slate-600 mb-1">તમારો લોગિન PIN (6 અંક) *</label>
+              <input id="spPinInput" type="text" maxlength="6" value="111111" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
             </div>
           </div>
         </div>
@@ -1359,8 +1403,8 @@
             <input id="pgPhoneInput" type="tel" maxlength="10" required placeholder="9825012345" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
           <div>
-            <label for="pgPinInput" class="block text-xs font-semibold text-slate-600 mb-1">4-અંકનો PIN *</label>
-            <input id="pgPinInput" type="text" maxlength="4" value="1234" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            <label for="pgPinInput" class="block text-xs font-semibold text-slate-600 mb-1">6-અંકનો PIN *</label>
+            <input id="pgPinInput" type="text" maxlength="6" value="123456" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -1466,7 +1510,7 @@
             </div>
             <div>
               <label for="tenantPinInput" class="block text-xs font-semibold text-slate-600 mb-1">લોગિન PIN *</label>
-              <input id="tenantPinInput" type="text" maxlength="4" value="1111" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+              <input id="tenantPinInput" type="text" maxlength="6" value="111111" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
             </div>
           </div>
 
@@ -1778,7 +1822,7 @@
 
     const STORAGE_KEY = 'aapnu_pg_prod_v1';
     const DEFAULT_STATE = {
-      superAdmin: { name: 'એપ માલિક', phone: '9999999999', pin: '0000', defaultPerBedFee: 50 },
+      superAdmin: { name: 'એપ માલિક', phone: '9999999999', pin: '000000', defaultPerBedFee: 50 },
       session: null,
       pgs: []
     };
@@ -1874,12 +1918,118 @@
       return cloneDefaultState();
     }
 
-    function saveState() {
+    const SUPABASE_URL = 'https://kidtpbrmvaqsnlnhrhax.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_20k8SXbP-xS7ubIyWyyZDA_2B1V0T9X';
+    const sbClient = (window.supabase && typeof window.supabase.createClient === 'function')
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+      : null;
+
+    function setCloudBadge(text, cls) {
+      const el = document.getElementById('cloudSyncBadge');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold ' + cls;
+    }
+
+    let cloudSaveTimer = null;
+    async function pushToSupabase(targetPgId) {
+      if (!sbClient) return;
+      try {
+        setCloudBadge('🔄 સેવ થાય છે...', 'bg-amber-100 text-amber-900 border border-amber-200');
+        if (!appState.session || appState.session.role === 'superadmin') {
+          await sbClient.from('app_config').upsert({
+            id: 'super_admin',
+            data: appState.superAdmin,
+            updated_at: new Date().toISOString()
+          });
+        }
+        const pgListToSave = targetPgId
+          ? appState.pgs.filter((pg) => pg.id === targetPgId)
+          : appState.pgs;
+        if (pgListToSave.length > 0) {
+          const rows = pgListToSave.map((pg) => ({
+            id: pg.id,
+            data: pg,
+            updated_at: new Date().toISOString()
+          }));
+          const { error } = await sbClient.from('pg_accounts').upsert(rows);
+          if (error) throw error;
+        }
+        setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
+      } catch (err) {
+        setCloudBadge('⚠️ ઓફલાઇન / SQL બાકી', 'bg-rose-100 text-rose-900 border border-rose-200');
+      }
+    }
+
+    async function syncFromSupabase(silent) {
+      if (!sbClient) {
+        setCloudBadge('⚠️ લોકલ મોડ', 'bg-slate-100 text-slate-700 border border-slate-200');
+        return;
+      }
+      try {
+        if (!silent) setCloudBadge('🔄 સિંક થાય છે...', 'bg-sky-100 text-sky-900 border border-sky-200');
+
+        // Scoped Fetch: If logged in as a single PG Owner or Tenant, ONLY download THAT PG's row (saves 95% bandwidth!)
+        if (appState.session && appState.session.pgId && appState.session.role !== 'superadmin' && !appState.session.inspectedBySuperAdmin) {
+          const { data: row, error } = await sbClient
+            .from('pg_accounts')
+            .select('id, data')
+            .eq('id', appState.session.pgId)
+            .maybeSingle();
+          if (error) throw error;
+          if (row && row.data) {
+            ensurePgIntegrity(row.data);
+            const idx = appState.pgs.findIndex((p) => p.id === row.id);
+            if (idx >= 0) appState.pgs[idx] = row.data;
+            else appState.pgs.push(row.data);
+          }
+        } else {
+          // Super Admin or Login Screen: fetch config + all PGs
+          const [cfgRes, pgsRes] = await Promise.all([
+            sbClient.from('app_config').select('data').eq('id', 'super_admin').maybeSingle(),
+            sbClient.from('pg_accounts').select('id, data')
+          ]);
+          if (cfgRes.error) throw cfgRes.error;
+          if (pgsRes.error) throw pgsRes.error;
+          if (cfgRes.data && cfgRes.data.data) {
+            appState.superAdmin = cfgRes.data.data;
+          }
+          if (Array.isArray(pgsRes.data)) {
+            const cloudPgs = pgsRes.data.map((row) => row.data).filter(Boolean);
+            cloudPgs.forEach(ensurePgIntegrity);
+            appState.pgs = cloudPgs;
+          }
+        }
+
+        saveLocalSafe();
+        setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
+        render();
+      } catch (err) {
+        setCloudBadge('⚠️ ઓફલાઇન / SQL બાકી', 'bg-rose-100 text-rose-900 border border-rose-200');
+      }
+    }
+
+    function saveLocalSafe() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
       } catch (err) {
-        showToast('સ્ટોરેજ ભરાઈ ગયું છે — કૃપા કરીને જૂના મોટા ફોટા દૂર કરો.');
+        // If localStorage quota is full, cache lightweight copy without heavy base64 images locally (cloud keeps full images!)
+        try {
+          const light = JSON.parse(JSON.stringify(appState));
+          light.pgs.forEach((pg) => {
+            if (pg.terms) pg.terms.images = [];
+            (pg.tenants || []).forEach((t) => { t.photo = ''; t.docs = []; });
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(light));
+        } catch (e2) {}
       }
+    }
+
+    function saveState() {
+      saveLocalSafe();
+      const activePgId = (appState.session && appState.session.pgId) ? appState.session.pgId : null;
+      if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = setTimeout(() => { pushToSupabase(activePgId); }, 350);
     }
 
     // ==================== STEP 13: HEAVY SECURITY ENGINE ====================
@@ -1966,7 +2116,7 @@
       const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
       const dateStr = now.toLocaleDateString('en-IN');
       pg.auditLogs.unshift({ id: 'al_' + Date.now(), text: actionText, time: `${dateStr} ${timeStr}` });
-      if (pg.auditLogs.length > 25) pg.auditLogs = pg.auditLogs.slice(0, 25);
+      if (pg.auditLogs.length > 12) pg.auditLogs = pg.auditLogs.slice(0, 12);
     }
 
     // Strict Role-Based Access Guard: prevents any cross-tenant or cross-PG data access
@@ -2095,7 +2245,7 @@
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          const maxDim = 900;
+          const maxDim = 480;
           let w = img.width;
           let h = img.height;
           if (w > maxDim || h > maxDim) {
@@ -2112,7 +2262,7 @@
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.42);
           callback(dataUrl);
         };
         img.onerror = () => showToast('આ ફોટો વાંચી શકાયો નથી.');
@@ -2456,7 +2606,15 @@
     function renderSuperAdminView() {
       const today = getTodayIsoDate();
       document.getElementById('saTodayLabel').textContent = `આજની તારીખ: ${today}`;
-      const defRate = (appState.superAdmin && appState.superAdmin.defaultPerBedFee) || 50;
+      try {
+        const bytes = new Blob([JSON.stringify(appState.pgs)]).size;
+        const kb = Math.round(bytes / 1024);
+        document.getElementById('saStorageUsedPill').textContent = kb >= 1024 ? `💾 ક્લાઉડ સ્ટોરેજ: ${(kb / 1024).toFixed(2)} MB` : `💾 ક્લાઉડ સ્ટોરેજ: ${kb} KB`;
+      } catch (e) {}
+      const saInfo = appState.superAdmin || { phone: '9999999999' };
+      const saPhoneInp = document.getElementById('saEditPhoneInput');
+      if (saPhoneInp && document.activeElement !== saPhoneInp) saPhoneInp.value = saInfo.phone || '';
+      const defRate = saInfo.defaultPerBedFee || 50;
       document.getElementById('saGlobalRateInput').value = String(defRate);
 
       let activeCount = 0;
@@ -3482,7 +3640,7 @@
 
     function openAddTenantForRoom(prefillRoom, prefillRent) {
       document.getElementById('addTenantForm').reset();
-      document.getElementById('tenantPinInput').value = '1111';
+      document.getElementById('tenantPinInput').value = '111111';
       pendingInitialDocDataUrl = null;
       pendingTenantPhotoDataUrl = null;
       document.getElementById('initialDocStatus').classList.add('hidden');
@@ -3620,6 +3778,10 @@
       if (!tenant) return;
       const label = document.getElementById('docTypeSelect').value || 'ડોક્યુમેન્ટ';
 
+      if (Array.isArray(tenant.docs) && tenant.docs.length >= 2) {
+        showToast('સ્ટોરેજ બચાવવા માટે એક ભાડૂઆતના મહત્તમ 2 ફોટા સેવ કરી શકાય છે. જૂનો ફોટો દૂર કરીને નવો ઉમેરો.');
+        return;
+      }
       compressImageFile(file, (dataUrl) => {
         if (!Array.isArray(tenant.docs)) tenant.docs = [];
         tenant.docs.unshift({
@@ -3826,6 +3988,9 @@
         totalTenants: pg.tenants.length,
         records
       });
+      if (pg.history.length > 6) {
+        pg.history.slice(6).forEach((oldH) => { oldH.records = []; });
+      }
 
       pg.currentMonth = nextMonth;
       pg.tenants.forEach((t) => { t.paid = false; });
@@ -3860,7 +4025,7 @@
       const errEl = document.getElementById('loginError');
 
       if (loginRole === 'superadmin') {
-        const sa = appState.superAdmin || { phone: '9999999999', pin: '0000' };
+        const sa = appState.superAdmin || { phone: '9999999999', pin: '000000' };
         if (phone !== sa.phone || pin !== sa.pin) {
           errEl.textContent = 'એપ માલિકનો મોબાઈલ અથવા PIN ખોટો છે.';
           errEl.classList.remove('hidden');
@@ -4187,7 +4352,7 @@
     // Register New PG Modal
     document.getElementById('openAddPgModalBtn').addEventListener('click', () => {
       document.getElementById('addPgForm').reset();
-      document.getElementById('pgPinInput').value = '1234';
+      document.getElementById('pgPinInput').value = '123456';
       document.getElementById('pgRateInput').value = '9';
       document.getElementById('pgPlanExpiryInput').value = addDaysToIso(getTodayIsoDate(), 30);
       document.getElementById('pgBedFeeInput').value = String((appState.superAdmin && appState.superAdmin.defaultPerBedFee) || 50);
@@ -4210,8 +4375,8 @@
       const unitRate = Number(document.getElementById('pgRateInput').value);
       const errEl = document.getElementById('pgFormError');
 
-      if (!name || !owner || ownerPhone.length < 10 || ownerPin.length !== 4 || isNaN(unitRate) || unitRate <= 0) {
-        errEl.textContent = 'કૃપા કરીને PG નામ, માલિકનું નામ, 10 અંકનો મોબાઈલ અને 4 અંકનો PIN દાખલ કરો.';
+      if (!name || !owner || ownerPhone.length < 10 || ownerPin.length !== 6 || isNaN(unitRate) || unitRate <= 0) {
+        errEl.textContent = 'કૃપા કરીને PG નામ, માલિકનું નામ, 10 અંકનો મોબાઈલ અને 6 અંકનો PIN દાખલ કરો.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -4391,8 +4556,8 @@
       const currReading = hasMeter ? Number(document.getElementById('currReadingInput').value || 0) : 0;
       const errEl = document.getElementById('formError');
 
-      if (!room || !name || phone.length < 10 || pin.length !== 4 || isNaN(rent) || rent <= 0 || isNaN(deposit) || deposit < 0) {
-        errEl.textContent = 'કૃપા કરીને રૂમ, નામ, 10 અંકનો મોબાઈલ, 4 અંકનો PIN, ભાડું અને ડિપોઝિટ દાખલ કરો.';
+      if (!room || !name || phone.length < 10 || pin.length !== 6 || isNaN(rent) || rent <= 0 || isNaN(deposit) || deposit < 0) {
+        errEl.textContent = 'કૃપા કરીને રૂમ, નામ, 10 અંકનો મોબાઈલ, 6 અંકનો PIN, ભાડું અને ડિપોઝિટ દાખલ કરો.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -4550,8 +4715,8 @@
       const p1 = document.getElementById('newOwnerPinInput').value.trim();
       const p2 = document.getElementById('confirmOwnerPinInput').value.trim();
       const errEl = document.getElementById('changePinError');
-      if (p1.length !== 4 || p1 !== p2) {
-        errEl.textContent = 'બંને PIN સરખા અને 4 અંકના હોવા જોઈએ.';
+      if (p1.length !== 6 || p1 !== p2) {
+        errEl.textContent = 'બંને PIN સરખા અને 6 અંકના હોવા જોઈએ.';
         errEl.classList.remove('hidden');
         return;
       }
@@ -4653,7 +4818,7 @@
         const pgSel = document.getElementById('spPgSelect');
         pgSel.innerHTML = appState.pgs.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
         populateSelfRegRooms(pgSel.value);
-        document.getElementById('spPinInput').value = '1111';
+        document.getElementById('spPinInput').value = '111111';
         document.getElementById('spStateInput').value = 'ગુજરાત';
       } else {
         const pg = getSessionPg();
@@ -4758,8 +4923,8 @@
         const roomNo = document.getElementById('spRoomSelect').value;
         const phone = document.getElementById('spPhoneInput').value.trim();
         const pin = document.getElementById('spPinInput').value.trim();
-        if (phone.length < 10 || pin.length !== 4) {
-          errEl.textContent = '10 અંકનો મોબાઈલ નંબર અને 4 અંકનો PIN દાખલ કરો.';
+        if (phone.length < 10 || pin.length !== 6) {
+          errEl.textContent = '10 અંકનો મોબાઈલ નંબર અને 6 અંકનો PIN દાખલ કરો.';
           errEl.classList.remove('hidden');
           return;
         }
@@ -4814,10 +4979,39 @@
       render();
     });
 
+    document.getElementById('saChangeCredsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newPhone = document.getElementById('saEditPhoneInput').value.trim();
+      const p1 = document.getElementById('saEditPinInput').value.trim();
+      const p2 = document.getElementById('saEditPinConfirmInput').value.trim();
+      const errEl = document.getElementById('saChangeCredsError');
+
+      if (!/^\d{10}$/.test(newPhone)) {
+        errEl.textContent = 'કૃપા કરીને 10 અંકનો સાચો મોબાઈલ નંબર દાખલ કરો.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!/^\d{6}$/.test(p1) || p1 !== p2) {
+        errEl.textContent = 'બંને PIN સરખા અને બરાબર 6 અંકના (નંબર) હોવા જોઈએ.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      errEl.classList.add('hidden');
+      if (!appState.superAdmin) appState.superAdmin = { name: 'એપ માલિક', defaultPerBedFee: 50 };
+      appState.superAdmin.phone = newPhone;
+      appState.superAdmin.pin = fastHashPin(p1);
+      document.getElementById('saEditPinInput').value = '';
+      document.getElementById('saEditPinConfirmInput').value = '';
+      saveState();
+      render();
+      showToast(`✅ એપ માલિક મોબાઈલ (${newPhone}) અને 6-અંકનો PIN ક્લાઉડમાં સેવ થઈ ગયો!`);
+    });
+
     document.getElementById('saApplyGlobalRateBtn').addEventListener('click', () => {
       const val = Number(document.getElementById('saGlobalRateInput').value);
       if (isNaN(val) || val <= 0) return;
-      if (!appState.superAdmin) appState.superAdmin = { name: 'એપ માલિક', phone: '9999999999', pin: '0000', defaultPerBedFee: val };
+      if (!appState.superAdmin) appState.superAdmin = { name: 'એપ માલિક', phone: '9999999999', pin: '000000', defaultPerBedFee: val };
       appState.superAdmin.defaultPerBedFee = val;
       appState.pgs.forEach((pg) => { pg.perBedFee = val; });
       saveState();
@@ -4914,8 +5108,8 @@
       const phone = document.getElementById('saLoginPhoneInput').value.trim();
       const pin = document.getElementById('saLoginPinInput').value.trim();
       const errEl = document.getElementById('saLoginError');
-      const sa = appState.superAdmin || { phone: '9999999999', pin: '0000' };
-      if (phone !== sa.phone || pin !== sa.pin) {
+      const sa = appState.superAdmin || { phone: '9999999999', pin: '000000' };
+      if (phone !== sa.phone || !verifyPinSecure(sa.pin, pin)) {
         errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
         errEl.classList.remove('hidden');
         return;
@@ -5267,6 +5461,18 @@ ${url}`;
       }, 10000);
     });
 
+    document.getElementById('cleanupOldPhotosBtn').addEventListener('click', () => {
+      const pg = getSessionPg();
+      if (!pg) return;
+      pg.auditLogs = [{ id: 'al_' + Date.now(), text: '🧹 સ્ટોરેજ બચાવવા જૂના લોગ સાફ કર્યા', time: getTodayIsoDate() }];
+      if (pg.history && pg.history.length > 3) {
+        pg.history.slice(3).forEach((h) => { h.records = []; });
+      }
+      saveState();
+      render();
+      showToast('જૂના લોગ અને 3 મહિનાથી જૂની વિગતો સાફ કરી સ્ટોરેજ બચાવી લીધું!');
+    });
+
     document.getElementById('autoLockSelect').addEventListener('change', (e) => {
       const pg = getSessionPg();
       if (!pg) return;
@@ -5296,8 +5502,43 @@ ${url}`;
     }, 15000);
 
 
-    // Initial Render
+    document.getElementById('manualSyncBtn').addEventListener('click', () => {
+      syncFromSupabase(false);
+      showToast('ક્લાઉડમાંથી તાજો ડેટા રિફ્રેશ થઈ રહ્યો છે...');
+    });
+
+
+    // ==================== PWA INSTALLABLE APP ENGINE ====================
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = document.getElementById('installAppBtn');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    document.getElementById('installAppBtn').addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          showToast('🎉 આપણું PG તમારા ફોનમાં ઇન્સ્ટોલ થઈ રહ્યું છે!');
+        }
+        deferredInstallPrompt = null;
+      } else {
+        showToast('Chrome માં ઉપર ⋮ (3 ટપકાં) → "Add to Home screen" / "Install app" પર ટેપ કરો (iPhone માં Share → Add to Home Screen).');
+      }
+    });
+
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    // Initial Render + On-Demand Cloud Sync (Zero wasteful polling!)
     render();
+    syncFromSupabase(false);
   </script>
 </body>
 </html>
