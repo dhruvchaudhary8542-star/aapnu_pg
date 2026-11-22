@@ -1993,6 +1993,7 @@
           if (pgsRes.error) throw pgsRes.error;
           if (cfgRes.data && cfgRes.data.data) {
             appState.superAdmin = cfgRes.data.data;
+          if (appState.superAdmin && appState.superAdmin.pin === '0000') appState.superAdmin.pin = '000000';
           }
           if (Array.isArray(pgsRes.data)) {
             const cloudPgs = pgsRes.data.map((row) => row.data).filter(Boolean);
@@ -5109,7 +5110,9 @@
       const pin = document.getElementById('saLoginPinInput').value.trim();
       const errEl = document.getElementById('saLoginError');
       const sa = appState.superAdmin || { phone: '9999999999', pin: '000000' };
-      if (phone !== sa.phone || !verifyPinSecure(sa.pin, pin)) {
+      const isMigratedDefault = (sa.pin === '0000' && pin === '000000');
+      if (isMigratedDefault) { sa.pin = '000000'; }
+      if (phone !== sa.phone || (!isMigratedDefault && !verifyPinSecure(sa.pin, pin))) {
         errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
         errEl.classList.remove('hidden');
         return;
