@@ -1924,11 +1924,20 @@
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
+    let lastCloudError = '';
     function setCloudBadge(text, cls) {
       const el = document.getElementById('cloudSyncBadge');
       if (!el) return;
       el.textContent = text;
       el.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold ' + cls;
+      el.title = lastCloudError || text;
+    }
+
+    function formatCloudErr(err) {
+      if (!err) return 'Unknown error';
+      const code = err.code ? err.code + ': ' : '';
+      const msg = err.message || err.error_description || err.hint || String(err);
+      return (code + msg).trim();
     }
 
     let cloudSaveTimer = null;
@@ -1937,11 +1946,12 @@
       try {
         setCloudBadge('🔄 સેવ થાય છે...', 'bg-amber-100 text-amber-900 border border-amber-200');
         if (!appState.session || appState.session.role === 'superadmin') {
-          await sbClient.from('app_config').upsert({
+          const { error: cfgErr } = await sbClient.from('app_config').upsert({
             id: 'super_admin',
             data: appState.superAdmin,
             updated_at: new Date().toISOString()
           });
+          if (cfgErr) throw cfgErr;
         }
         const pgListToSave = targetPgId
           ? appState.pgs.filter((pg) => pg.id === targetPgId)
@@ -1955,9 +1965,11 @@
           const { error } = await sbClient.from('pg_accounts').upsert(rows);
           if (error) throw error;
         }
+        lastCloudError = '';
         setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
       } catch (err) {
-        setCloudBadge('⚠️ ઓફલાઇન / SQL બાકી', 'bg-rose-100 text-rose-900 border border-rose-200');
+        lastCloudError = formatCloudErr(err);
+        setCloudBadge('⚠️ ' + lastCloudError.slice(0, 34), 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
       }
     }
 
@@ -2003,10 +2015,12 @@
         }
 
         saveLocalSafe();
+        lastCloudError = '';
         setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
         render();
       } catch (err) {
-        setCloudBadge('⚠️ ઓફલાઇન / SQL બાકી', 'bg-rose-100 text-rose-900 border border-rose-200');
+        lastCloudError = formatCloudErr(err);
+        setCloudBadge('⚠️ ' + lastCloudError.slice(0, 34), 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
       }
     }
 
@@ -5505,6 +5519,13 @@ ${url}`;
     }, 15000);
 
 
+    document.getElementById('cloudSyncBadge').addEventListener('click', () => {
+      if (lastCloudError) {
+        showToast('ક્લાઉડ એરર: ' + lastCloudError);
+      } else {
+        showToast('ક્લાઉડ સિંક બરાબર ચાલુ છે.');
+      }
+    });
     document.getElementById('manualSyncBtn').addEventListener('click', () => {
       syncFromSupabase(false);
       showToast('ક્લાઉડમાંથી તાજો ડેટા રિફ્રેશ થઈ રહ્યો છે...');
