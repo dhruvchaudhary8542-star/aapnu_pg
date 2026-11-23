@@ -2083,6 +2083,43 @@
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
       : null;
 
+    function toAuthEmail(role, phone) {
+      const clean = String(phone || '').replace(/\D/g, '').slice(-10);
+      return `${role}_${clean}@aapnupg.app`;
+    }
+
+    function toAuthPassword(pin) {
+      return `Apg#${String(pin || '').trim()}`;
+    }
+
+    async function ensureSupabaseAuthSession(role, phone, pin, pgId) {
+      if (!sbClient) return false;
+      const email = toAuthEmail(role, phone);
+      const password = toAuthPassword(pin);
+      try {
+        let { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        if (error && /invalid login credentials/i.test(error.message || '')) {
+          const signUpRes = await sbClient.auth.signUp({ email, password });
+          if (signUpRes.error) throw signUpRes.error;
+          data = signUpRes.data;
+        } else if (error) {
+          throw error;
+        }
+        if (data && data.user) {
+          const { error: rpcErr } = await sbClient.rpc('auth_claim_role', {
+            p_role: role,
+            p_phone: String(phone || '').replace(/\D/g, '').slice(-10),
+            p_pg_id: pgId || null
+          });
+          if (rpcErr) console.warn('[Aapnu PG Auth Role]', rpcErr.message);
+          return true;
+        }
+      } catch (err) {
+        console.error('[Aapnu PG Auth]', err);
+      }
+      return false;
+    }
+
     let lastCloudError = '';
     function setCloudBadge(text, cls) {
       const el = document.getElementById('cloudSyncBadge');
@@ -4389,6 +4426,7 @@
           return;
         }
         clearFailedLogin(phone);
+        await ensureSupabaseAuthSession('owner', phone, pin, matchedPg.id);
         addSecurityAudit(matchedPg, `👑 PG માલિક (${matchedPg.owner}) લોગિન થયા`);
         appState.session = { role: 'owner', pgId: matchedPg.id };
         activeTab = 'home';
@@ -4432,6 +4470,7 @@
           return;
         }
         clearFailedLogin(phone);
+        await ensureSupabaseAuthSession('tenant', phone, pin, foundPg.id);
         addSecurityAudit(foundPg, `👤 ભાડૂઆત ${foundTenant.name} (રૂમ ${foundTenant.room}) લોગિન થયા`);
         if ('Notification' in window && Notification.permission === 'default') {
           Notification.requestPermission().then(() => updateNotifButtonsUI()).catch(() => {});
@@ -4444,7 +4483,8 @@
       }
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (sbClient) { try { await sbClient.auth.signOut(); } catch (e) {} }
       appState.session = null;
       activeRoomPopupNo = null;
       activeDocsTenantId = null;
@@ -5351,6 +5391,18 @@
           ...commonFields
         };
         if (!newTenant.joinDate) newTenant.joinDate = getTodayIsoDate();
+        if (sbClient) {
+          try {
+            const email = toAuthEmail('tenant', phone);
+            const password = toAuthPassword(pin);
+            await sbClient.auth.signUp({ email, password });
+            const { error: regRpcErr } = await sbClient.rpc('register_student_qr', {
+              p_pg_id: pg.id,
+              p_tenant: newTenant
+            });
+            if (regRpcErr) console.warn('[Aapnu PG QR RPC]', regRpcErr.message);
+          } catch (e) {}
+        }
         pg.tenants.unshift(newTenant);
         appState.session = { role: 'tenant', pgId: pg.id, tenantId: newTenant.id };
         if (window.location.hash && window.location.hash.startsWith('#register-pg=')) {
@@ -5597,6 +5649,7 @@
       }
       clearFailedLogin('sa_' + phone);
       if (chk.needsUpgrade) sa.pin = await pbkdf2HashPin(pin);
+      await ensureSupabaseAuthSession('superadmin', phone, pin, null);
       showSaLoginPage = false;
       appState.session = { role: 'superadmin' };
       saveState();
@@ -5919,9 +5972,19 @@ ${url}`;
       saveLocalSafe();
     }
 
-    function tryOpenPendingQrRegistration() {
+    async function tryOpenPendingQrRegistration() {
       if (!pendingQrRegisterPgId) return;
-      const targetPg = appState.pgs.find((p) => p.id === pendingQrRegisterPgId);
+      let targetPg = appState.pgs.find((p) => p.id === pendingQrRegisterPgId);
+      if (!targetPg && sbClient) {
+        try {
+          const { data: pubPg } = await sbClient.rpc('get_pg_public_info', { p_pg_id: pendingQrRegisterPgId });
+          if (pubPg && pubPg.id) {
+            ensurePgIntegrity(pubPg);
+            appState.pgs.push(pubPg);
+            targetPg = pubPg;
+          }
+        } catch (e) {}
+      }
       if (!targetPg) return;
       const pid = pendingQrRegisterPgId;
       pendingQrRegisterPgId = null;
