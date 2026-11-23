@@ -2093,31 +2093,39 @@
     }
 
     async function ensureSupabaseAuthSession(role, phone, pin, pgId) {
-      if (!sbClient) return false;
-      const email = toAuthEmail(role, phone);
+      if (!sbClient) return { ok: false, error: 'no_client' };
+      const cleanPhone = String(phone || '').replace(/\D/g, '').slice(-10);
+      const email = toAuthEmail(role, cleanPhone);
       const password = toAuthPassword(pin);
       try {
         let { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        let isNewAuthUser = false;
         if (error && /invalid login credentials/i.test(error.message || '')) {
           const signUpRes = await sbClient.auth.signUp({ email, password });
-          if (signUpRes.error) throw signUpRes.error;
+          if (signUpRes.error) return { ok: false, error: signUpRes.error.message };
           data = signUpRes.data;
+          isNewAuthUser = true;
         } else if (error) {
-          throw error;
+          return { ok: false, error: error.message };
         }
         if (data && data.user) {
           const { error: rpcErr } = await sbClient.rpc('auth_claim_role', {
             p_role: role,
-            p_phone: String(phone || '').replace(/\D/g, '').slice(-10),
-            p_pg_id: pgId || null
+            p_phone: cleanPhone,
+            p_pg_id: pgId || null,
+            p_fast_hash: fastHashPin(pin),
+            p_plain_pin: String(pin || '')
           });
-          if (rpcErr) console.warn('[Aapnu PG Auth Role]', rpcErr.message);
-          return true;
+          if (rpcErr) {
+            if (isNewAuthUser) { try { await sbClient.auth.signOut(); } catch (e) {} }
+            return { ok: false, error: rpcErr.message };
+          }
+          return { ok: true };
         }
       } catch (err) {
         console.error('[Aapnu PG Auth]', err);
       }
-      return false;
+      return { ok: false, error: 'auth_failed' };
     }
 
     let lastCloudError = '';
@@ -4391,9 +4399,18 @@
         render();
         showToast('સ્વાગત છે! એપ માલિક પેનલ ખુલી ગયું.');
       } else if (loginRole === 'owner') {
-        const pgByPhone = appState.pgs.find((p) => p.ownerPhone === phone);
+        let pgByPhone = appState.pgs.find((p) => p.ownerPhone === phone);
         const lockSec = Math.max(checkLoginLockout(phone), checkCloudLockout(pgByPhone, phone));
         if (lockSec > 0) { errEl.textContent = `🔒 ઘણા ખોટા પ્રયાસો! ${lockSec} સેકન્ડ પછી ફરી પ્રયત્ન કરો.`; errEl.classList.remove('hidden'); return; }
+
+        if (!pgByPhone && sbClient) {
+          const authRes = await ensureSupabaseAuthSession('owner', phone, pin, null);
+          if (authRes.ok) {
+            await syncFromSupabase(true);
+            pgByPhone = appState.pgs.find((p) => p.ownerPhone === phone);
+          }
+        }
+
         let matchedPg = null;
         if (pgByPhone) {
           const chk = await verifyPinAsync(pgByPhone.ownerPin, pin);
@@ -4434,6 +4451,12 @@
         render();
         showToast(`સ્વાગત છે ${matchedPg.owner}! (${matchedPg.name})`);
       } else {
+        if (sbClient && !appState.pgs.some((pg) => pg.tenants && pg.tenants.some((item) => item.phone === phone))) {
+          const authT = await ensureSupabaseAuthSession('tenant', phone, pin, null);
+          if (authT.ok) {
+            await syncFromSupabase(true);
+          }
+        }
         let foundPg = null;
         let foundTenant = null;
         let candidatePgForLock = null;
@@ -5633,11 +5656,16 @@
         errEl.classList.remove('hidden');
         return;
       }
+      if ((!appState.superAdmin || !appState.superAdmin.phone || !appState.superAdmin.pin) && sbClient) {
+        const authSa = await ensureSupabaseAuthSession('superadmin', phone, pin, null);
+        if (authSa.ok) {
+          await syncFromSupabase(true);
+        }
+      }
       const sa = appState.superAdmin;
       if (!sa || !sa.phone || !sa.pin) {
-        errEl.textContent = 'ક્લાઉડમાંથી એપ માલિકની વિગત લોડ થાય છે — 2 સેકન્ડ પછી ફરી પ્રયત્ન કરો.';
+        errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
         errEl.classList.remove('hidden');
-        syncFromSupabase(false);
         return;
       }
       const chk = await verifyPinAsync(sa.pin, pin);
