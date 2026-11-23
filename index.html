@@ -12,7 +12,7 @@
   <title>આપણું PG — PG મેનેજમેન્ટ એપ</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
   <style>
     body {
       font-family: 'Inter', 'Noto Sans Gujarati', 'Shruti', system-ui, -apple-system, sans-serif;
@@ -95,7 +95,10 @@
         <span aria-hidden="true">📲</span>
         <span>ફોનમાં એપ ઇન્સ્ટોલ કરો (Install App)</span>
       </button>
-      <button id="openSuperAdminLoginBtn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/80 hover:bg-white border border-slate-200 text-xs font-semibold text-slate-500 hover:text-sky-900 shadow-xs transition cursor-pointer">
+      <div class="text-center pt-1">
+          <button type="button" data-open-privacy="1" class="text-[11px] font-semibold text-slate-500 hover:text-sky-800 underline cursor-pointer">📜 ગોપનીયતા નીતિ (Privacy Policy) અને નિયમો</button>
+        </div>
+        <button id="openSuperAdminLoginBtn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/80 hover:bg-white border border-slate-200 text-xs font-semibold text-slate-500 hover:text-sky-900 shadow-xs transition cursor-pointer">
         <span aria-hidden="true">🛡️</span>
         <span>એપ માલિક લોગિન (App Owner)</span>
       </button>
@@ -119,7 +122,7 @@
         <form id="saLoginForm" class="space-y-4">
           <div>
             <label for="saLoginPhoneInput" class="block text-xs font-semibold text-slate-600 mb-1">એપ માલિક મોબાઈલ</label>
-            <input id="saLoginPhoneInput" type="tel" inputmode="numeric" maxlength="10" required placeholder="9999999999" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            <input id="saLoginPhoneInput" type="tel" inputmode="numeric" maxlength="10" required placeholder="એપ માલિકનો 10-અંકનો મોબાઈલ" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
           </div>
           <div>
             <label for="saLoginPinInput" class="block text-xs font-semibold text-slate-600 mb-1">6-અંકનો એડમિન PIN</label>
@@ -687,7 +690,7 @@
             </div>
             <label class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold cursor-pointer transition">
               <span>🖼️ નિયમનો ફોટો અપલોડ (મહત્તમ 2)</span>
-              <input id="termsImgInput" type="file" accept="image/*" class="hidden" />
+              <input id="termsImgInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" />
             </label>
           </div>
 
@@ -779,6 +782,14 @@
               ⬇️ QR ડાઉનલોડ
             </button>
           </div>
+
+          <label class="flex items-center justify-between gap-3 bg-sky-50/70 border border-sky-200 rounded-2xl px-3.5 py-2.5 text-left cursor-pointer">
+            <div>
+              <span class="text-xs font-extrabold text-slate-800 block">🔓 QR રજીસ્ટ્રેશન ચાલુ રાખો</span>
+              <span class="text-[11px] text-slate-500">બંધ કરશો તો કોઈ નવો વિદ્યાર્થી QR થી રજીસ્ટર નહીં કરી શકે</span>
+            </div>
+            <input id="qrAllowRegToggle" type="checkbox" checked class="w-5 h-5 accent-teal-600 cursor-pointer" />
+          </label>
 
           <button id="testScanQrBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-teal-100 hover:bg-teal-200 text-teal-950 border border-teal-300 text-xs sm:text-sm font-bold transition cursor-pointer">
             📝 આ QR થી નવું ભાડૂઆત રજીસ્ટ્રેશન અજમાવો →
@@ -987,6 +998,10 @@
                 <span aria-hidden="true">🔔</span>
                 <span id="tenantEnableNotifLabel">9:00 AM રિમાઇન્ડર ચાલુ કરો</span>
               </button>
+              <button id="tenantSelfDeleteBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                <span aria-hidden="true">🗑️</span>
+                <span>મારું એકાઉન્ટ ડિલીટ કરો</span>
+              </button>
             </div>
           </div>
 
@@ -1088,11 +1103,11 @@
           <div class="grid grid-cols-2 gap-2.5">
             <label class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 text-xs sm:text-sm font-bold text-center cursor-pointer transition">
               <span>📸 કેમેરાથી ફોટો પાડો</span>
-              <input id="docCameraInput" type="file" accept="image/*" capture="environment" class="hidden" />
+              <input id="docCameraInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" class="hidden" />
             </label>
             <label class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-sky-800 border border-indigo-300 text-xs sm:text-sm font-bold text-center cursor-pointer transition">
               <span>🖼️ ગેલેરીમાંથી લો</span>
-              <input id="docGalleryInput" type="file" accept="image/*" class="hidden" />
+              <input id="docGalleryInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" />
             </label>
           </div>
           <p class="text-[11px] text-slate-500">ફોટો આપમેળે નાની સાઈઝમાં કોમ્પ્રેસ થઈને એપમાં સેવ થશે, જેને તમે ગમે ત્યારે જોઈ અને મોકલી શકો.</p>
@@ -1161,7 +1176,7 @@
             </div>
             <div>
               <label for="spPinInput" class="block text-xs font-semibold text-slate-600 mb-1">તમારો લોગિન PIN (6 અંક) *</label>
-              <input id="spPinInput" type="text" maxlength="6" value="111111" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+              <input id="spPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="6 અંકનો નવો PIN" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
             </div>
           </div>
           <p class="text-[11px] font-semibold text-amber-900 bg-white/80 border border-amber-200 rounded-xl px-2.5 py-1.5">ℹ️ તમારી માસિક ફી અને ડિપોઝિટ PG માલિક દ્વારા સેટ કરવામાં આવશે.</p>
@@ -1247,12 +1262,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-2.5 space-y-1">
               <label for="spPhotoInput" class="block text-xs font-bold text-slate-700">🧑 તમારો ફોટો</label>
-              <input id="spPhotoInput" type="file" accept="image/*" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-sky-100 file:text-sky-900 cursor-pointer" />
+              <input id="spPhotoInput" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-sky-100 file:text-sky-900 cursor-pointer" />
               <p id="spPhotoStatus" class="hidden text-[11px] font-semibold text-emerald-700"></p>
             </div>
             <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-2.5 space-y-1">
               <label for="spAadhaarImgInput" class="block text-xs font-bold text-slate-700">🪪 આધાર કાર્ડ ફોટો</label>
-              <input id="spAadhaarImgInput" type="file" accept="image/*" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-100 file:text-amber-900 cursor-pointer" />
+              <input id="spAadhaarImgInput" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-100 file:text-amber-900 cursor-pointer" />
               <p id="spAadhaarImgStatus" class="hidden text-[11px] font-semibold text-emerald-700"></p>
             </div>
           </div>
@@ -1296,6 +1311,18 @@
               <option value="અન્ય">અન્ય</option>
             </select>
           </div>
+        </div>
+
+        <!-- Bot Check + Privacy Policy & Under-18 DPDP Consent (Registration only) -->
+        <div id="spRegSecurityWrap" class="hidden bg-rose-50/60 border border-rose-200 rounded-2xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <label for="spCaptchaInput" id="spCaptchaLabel" class="text-xs font-extrabold text-slate-800">🛡️ સુરક્ષા સવાલ: 4 + 3 = ?</label>
+            <input id="spCaptchaInput" type="number" inputmode="numeric" placeholder="જવાબ" class="w-24 px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-xl text-center font-bold" />
+          </div>
+          <label class="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer leading-relaxed">
+            <input id="spConsentCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-teal-600 shrink-0 cursor-pointer" />
+            <span>હું <button type="button" data-open-privacy="1" class="underline font-bold text-sky-800 cursor-pointer">ગોપનીયતા નીતિ (Privacy Policy)</button> સાથે સંમત છું. જો મારી ઉંમર 18 વર્ષથી ઓછી હોય, તો મેં માતા-પિતા/વાલીની મંજૂરી લીધેલી છે.</span>
+          </label>
         </div>
 
         <p id="spFormError" class="hidden text-xs font-medium text-rose-600 bg-rose-50 px-3 py-2 rounded-lg"></p>
@@ -1621,7 +1648,7 @@
             </div>
             <div>
               <label for="tenantPinInput" class="block text-xs font-semibold text-slate-600 mb-1">લોગિન PIN *</label>
-              <input id="tenantPinInput" type="text" maxlength="6" value="111111" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
+              <input id="tenantPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="6 અંકનો PIN" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
             </div>
           </div>
 
@@ -1678,12 +1705,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-2.5 space-y-1.5">
               <label for="tenantPhotoInput" class="block text-xs font-bold text-slate-700">🧑 ભાડૂઆતનો ફોટો</label>
-              <input id="tenantPhotoInput" type="file" accept="image/*" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-sky-100 file:text-sky-900 cursor-pointer" />
+              <input id="tenantPhotoInput" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-sky-100 file:text-sky-900 cursor-pointer" />
               <p id="tenantPhotoStatus" class="hidden text-[11px] font-semibold text-emerald-700"></p>
             </div>
             <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-2.5 space-y-1.5">
               <label for="initialDocInput" class="block text-xs font-bold text-slate-700">🪪 આધાર કાર્ડ ફોટો</label>
-              <input id="initialDocInput" type="file" accept="image/*" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-amber-100 file:text-amber-900 cursor-pointer" />
+              <input id="initialDocInput" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-amber-100 file:text-amber-900 cursor-pointer" />
               <p id="initialDocStatus" class="hidden text-[11px] font-semibold text-emerald-700"></p>
             </div>
           </div>
@@ -1916,6 +1943,27 @@
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-5 right-5 z-[70] hidden bg-sky-100 text-sky-950 border border-sky-300 text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md"></div>
 
+
+  <!-- ==================== PRIVACY POLICY & DPDP MODAL ==================== -->
+  <div id="privacyPolicyModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-800/40 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[88vh] flex flex-col">
+      <div class="px-5 py-4 bg-gradient-to-r from-sky-100 to-teal-100 border-b border-sky-200 flex items-center justify-between shrink-0">
+        <h2 class="text-base font-extrabold text-slate-800">📜 ગોપનીયતા નીતિ (Privacy Policy)</h2>
+        <button id="closePrivacyModalBtn" type="button" class="w-8 h-8 rounded-lg bg-white/80 hover:bg-white text-slate-700 border border-slate-200 flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div class="p-5 space-y-3 overflow-y-auto text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <p><strong>1. કયો ડેટા સંગ્રહિત થાય છે:</strong> તમારું નામ, મોબાઈલ નંબર, રૂમ વિગત, ભાડા/વીજળી હિસાબ, વાલીના સંપર્ક અને (જો તમે અપલોડ કરો તો) પ્રોફાઈલ/આધાર ફોટો.</p>
+        <p><strong>2. ડેટાનો ઉપયોગ અને શેરિંગ:</strong> તમારો ડેટા ફક્ત તમારા PG મેનેજમેન્ટ, બિલ/રસીદ અને ફી રિમાઇન્ડર માટે વપરાય છે અને સુરક્ષિત રીતે Supabase ક્લાઉડમાં રહે છે. કોઈ જાહેરાત કે ત્રીજી પાર્ટીને વેચવામાં આવતો નથી.</p>
+        <p><strong>3. 18 વર્ષથી નાના વિદ્યાર્થીઓ (DPDP કાયદો):</strong> જો વિદ્યાર્થીની ઉંમર 18 વર્ષથી ઓછી હોય, તો રજીસ્ટ્રેશન અને ડોક્યુમેન્ટ અપલોડ કરતા પહેલા માતા-પિતા અથવા કાયદેસરના વાલીની મંજૂરી ફરજિયાત છે.</p>
+        <p><strong>4. ડેટા ડિલીટ કરવાનો અધિકાર:</strong> કોઈપણ વિદ્યાર્થી પોતાના ડેશબોર્ડમાં <strong>"🗑️ મારું એકાઉન્ટ ડિલીટ કરો"</strong> બટનથી પોતાનો સંપૂર્ણ ડેટા અને ફોટા કાયમ માટે દૂર કરી શકે છે.</p>
+        <p><strong>5. સુરક્ષા સંપર્ક:</strong> કોઈપણ સુરક્ષા પ્રશ્ન કે ફરિયાદ માટે તમારા PG માલિક અથવા એપ માલિકનો સંપર્ક કરો.</p>
+      </div>
+      <div class="px-5 py-3 border-t border-slate-100 text-right shrink-0">
+        <button id="okPrivacyModalBtn" type="button" class="px-5 py-2 rounded-xl bg-sky-200 hover:bg-sky-300 text-sky-950 border border-sky-300 text-xs font-bold cursor-pointer">સમજાઈ ગયું</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const MONTHS_GU = ['જાન્યુઆરી', 'ફેબ્રુઆરી', 'માર્ચ', 'એપ્રિલ', 'મે', 'જૂન', 'જુલાઈ', 'ઓગસ્ટ', 'સપ્ટેમ્બર', 'ઓક્ટોબર', 'નવેમ્બર', 'ડિસેમ્બર'];
 
@@ -1933,7 +1981,7 @@
 
     const STORAGE_KEY = 'aapnu_pg_prod_v1';
     const DEFAULT_STATE = {
-      superAdmin: { name: 'એપ માલિક', phone: '9999999999', pin: '000000', defaultPerBedFee: 50 },
+      superAdmin: { name: 'એપ માલિક', phone: '', pin: '', defaultPerBedFee: 50 },
       session: null,
       pgs: []
     };
@@ -2081,7 +2129,7 @@
         setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
       } catch (err) {
         lastCloudError = formatCloudErr(err);
-        setCloudBadge('⚠️ ' + lastCloudError.slice(0, 34), 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
+        console.error('[Aapnu PG Cloud]', lastCloudError); setCloudBadge('⚠️ ક્લાઉડ કનેક્શન સમસ્યા', 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
       }
     }
 
@@ -2117,7 +2165,7 @@
           if (pgsRes.error) throw pgsRes.error;
           if (cfgRes.data && cfgRes.data.data) {
             appState.superAdmin = cfgRes.data.data;
-          if (appState.superAdmin && appState.superAdmin.pin === '0000') appState.superAdmin.pin = '000000';
+          
           }
           if (Array.isArray(pgsRes.data)) {
             const cloudPgs = pgsRes.data.map((row) => row.data).filter(Boolean);
@@ -2132,7 +2180,7 @@
         render();
       } catch (err) {
         lastCloudError = formatCloudErr(err);
-        setCloudBadge('⚠️ ' + lastCloudError.slice(0, 34), 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
+        console.error('[Aapnu PG Cloud]', lastCloudError); setCloudBadge('⚠️ ક્લાઉડ કનેક્શન સમસ્યા', 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
       }
     }
 
@@ -2227,10 +2275,81 @@
       return 'h_' + (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
     }
 
+    function generateSafeId(prefix) {
+      try {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+          return (prefix ? prefix + '_' : '') + window.crypto.randomUUID();
+        }
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          const buf = new Uint8Array(12);
+          window.crypto.getRandomValues(buf);
+          return (prefix ? prefix + '_' : '') + Array.from(buf).map((b) => b.toString(16).padStart(2, '0')).join('');
+        }
+      } catch (e) {}
+      return (prefix ? prefix + '_' : '') + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    }
+
+    async function pbkdf2HashPin(pin, existingSaltHex) {
+      const strPin = String(pin || '');
+      if (!window.crypto || !window.crypto.subtle) return fastHashPin(strPin);
+      const enc = new TextEncoder();
+      let saltBytes;
+      if (existingSaltHex) {
+        saltBytes = new Uint8Array(existingSaltHex.match(/.{1,2}/g).map((b) => parseInt(b, 16)));
+      } else {
+        saltBytes = new Uint8Array(16);
+        window.crypto.getRandomValues(saltBytes);
+      }
+      const keyMat = await window.crypto.subtle.importKey('raw', enc.encode(strPin), 'PBKDF2', false, ['deriveBits']);
+      const bits = await window.crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: saltBytes, iterations: 100000, hash: 'SHA-256' },
+        keyMat,
+        256
+      );
+      const hashHex = Array.from(new Uint8Array(bits)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const saltHex = Array.from(saltBytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+      return 'p2_' + saltHex + '_' + hashHex;
+    }
+
     function verifyPinSecure(storedPinOrHash, enteredPin) {
       if (!storedPinOrHash) return false;
+      if (String(storedPinOrHash).startsWith('p2_')) return false; // Must use verifyPinAsync for PBKDF2
       const enteredHash = fastHashPin(enteredPin);
       return storedPinOrHash === enteredHash || storedPinOrHash === String(enteredPin);
+    }
+
+    async function verifyPinAsync(storedPinOrHash, enteredPin) {
+      if (!storedPinOrHash) return { ok: false, needsUpgrade: false };
+      const stored = String(storedPinOrHash);
+      if (stored.startsWith('p2_')) {
+        const parts = stored.split('_');
+        if (parts.length !== 3) return { ok: false, needsUpgrade: false };
+        const computed = await pbkdf2HashPin(enteredPin, parts[1]);
+        return { ok: computed === stored, needsUpgrade: false };
+      }
+      const ok = verifyPinSecure(stored, enteredPin);
+      return { ok, needsUpgrade: ok };
+    }
+
+    // Cloud-mirrored lockout helper (prevents Incognito/localStorage bypass)
+    function checkCloudLockout(pg, phone) {
+      if (!pg || !pg.loginLockouts || !pg.loginLockouts[phone]) return 0;
+      const rec = pg.loginLockouts[phone];
+      if (rec.until && rec.until > Date.now()) return Math.ceil((rec.until - Date.now()) / 1000);
+      return 0;
+    }
+    function recordCloudFailedLogin(pg, phone) {
+      if (!pg) return;
+      if (!pg.loginLockouts) pg.loginLockouts = {};
+      const rec = pg.loginLockouts[phone] || { count: 0, until: 0 };
+      rec.count = (rec.count || 0) + 1;
+      if (rec.count >= 5) { rec.until = Date.now() + 60000; rec.count = 0; }
+      pg.loginLockouts[phone] = rec;
+    }
+    function clearCloudFailedLogin(pg, phone) {
+      if (pg && pg.loginLockouts && pg.loginLockouts[phone]) {
+        delete pg.loginLockouts[phone];
+      }
     }
 
     function getLockoutState() {
@@ -2408,6 +2527,15 @@
 
     // Compress uploaded image via Canvas so it stores safely in localStorage
     function compressImageFile(file, callback) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!file || !allowedTypes.includes(file.type)) {
+        showToast('ફક્ત JPG, PNG અથવા WebP ફોટો જ અપલોડ કરી શકાય છે (SVG/અન્ય ફાઇલ બંધ છે).');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('ફોટો 5 MB થી નાનો હોવો જોઈએ.');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
@@ -3819,7 +3947,7 @@
 
     function openAddTenantForRoom(prefillRoom, prefillRent) {
       document.getElementById('addTenantForm').reset();
-      document.getElementById('tenantPinInput').value = '111111';
+      document.getElementById('tenantPinInput').value = '';
       pendingInitialDocDataUrl = null;
       pendingTenantPhotoDataUrl = null;
       document.getElementById('initialDocStatus').classList.add('hidden');
@@ -4201,35 +4329,54 @@
 
 
 
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const phone = document.getElementById('loginPhoneInput').value.trim();
       const pin = document.getElementById('loginPinInput').value.trim();
       const errEl = document.getElementById('loginError');
 
       if (loginRole === 'superadmin') {
-        const sa = appState.superAdmin || { phone: '9999999999', pin: '000000' };
-        if (phone !== sa.phone || pin !== sa.pin) {
+        const sa = appState.superAdmin;
+        if (!sa || !sa.phone || !sa.pin) {
+          errEl.textContent = 'એપ માલિક એકાઉન્ટ ક્લાઉડમાંથી લોડ થયું નથી. થોડી સેકન્ડ રાહ જોઈ ફરી પ્રયત્ન કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        const saCheck = await verifyPinAsync(sa.pin, pin);
+        if (phone !== sa.phone || !saCheck.ok) {
           errEl.textContent = 'એપ માલિકનો મોબાઈલ અથવા PIN ખોટો છે.';
           errEl.classList.remove('hidden');
           return;
         }
+        if (saCheck.needsUpgrade) sa.pin = await pbkdf2HashPin(pin);
         appState.session = { role: 'superadmin' };
         saveState();
         render();
         showToast('સ્વાગત છે! એપ માલિક પેનલ ખુલી ગયું.');
       } else if (loginRole === 'owner') {
-        const lockSec = checkLoginLockout(phone);
+        const pgByPhone = appState.pgs.find((p) => p.ownerPhone === phone);
+        const lockSec = Math.max(checkLoginLockout(phone), checkCloudLockout(pgByPhone, phone));
         if (lockSec > 0) { errEl.textContent = `🔒 ઘણા ખોટા પ્રયાસો! ${lockSec} સેકન્ડ પછી ફરી પ્રયત્ન કરો.`; errEl.classList.remove('hidden'); return; }
-        const matchedPg = appState.pgs.find((p) => p.ownerPhone === phone && verifyPinSecure(p.ownerPin, pin));
+        let matchedPg = null;
+        if (pgByPhone) {
+          const chk = await verifyPinAsync(pgByPhone.ownerPin, pin);
+          if (chk.ok) {
+            matchedPg = pgByPhone;
+            if (chk.needsUpgrade) matchedPg.ownerPin = await pbkdf2HashPin(pin);
+          }
+        }
         if (!matchedPg) {
           const left = recordFailedLogin(phone);
-          const pgTry = appState.pgs.find((p) => p.ownerPhone === phone);
-          if (pgTry) { addSecurityAudit(pgTry, '⚠️ ખોટો માલિક PIN પ્રયાસ'); saveState(); }
+          if (pgByPhone) {
+            recordCloudFailedLogin(pgByPhone, phone);
+            addSecurityAudit(pgByPhone, '⚠️ ખોટો માલિક PIN પ્રયાસ');
+            saveState();
+          }
           errEl.textContent = left === 60 ? '🔒 5 ખોટા પ્રયાસો! સુરક્ષા માટે 60 સેકન્ડ લોક કર્યું.' : `મોબાઈલ અથવા PIN ખોટો છે (${left} પ્રયાસ બાકી).`;
           errEl.classList.remove('hidden');
           return;
         }
+        clearCloudFailedLogin(matchedPg, phone);
         const st = getPgPlanStatus(matchedPg);
         if (!st.isAllowed) {
           errEl.textContent = '🚫 તમારું PG એકાઉન્ટ એપ માલિક દ્વારા બંધ (Block) કરેલું છે. મંજૂરી માટે એપ માલિકનો સંપર્ક કરો.';
@@ -4251,22 +4398,33 @@
       } else {
         let foundPg = null;
         let foundTenant = null;
+        let candidatePgForLock = null;
         for (const pg of appState.pgs) {
-          const lockSecT = checkLoginLockout(phone);
+          const tByPhone = pg.tenants.find((item) => item.phone === phone);
+          if (tByPhone) candidatePgForLock = pg;
+          const lockSecT = Math.max(checkLoginLockout(phone), checkCloudLockout(pg, phone));
           if (lockSecT > 0) { errEl.textContent = `🔒 ઘણા ખોટા પ્રયાસો! ${lockSecT} સેકન્ડ પછી ફરી પ્રયત્ન કરો.`; errEl.classList.remove('hidden'); return; }
-          const t = pg.tenants.find((item) => item.phone === phone && verifyPinSecure(item.pin, pin));
-          if (t) {
-            foundPg = pg;
-            foundTenant = t;
-            break;
+          if (tByPhone) {
+            const chkT = await verifyPinAsync(tByPhone.pin, pin);
+            if (chkT.ok) {
+              if (chkT.needsUpgrade) tByPhone.pin = await pbkdf2HashPin(pin);
+              foundPg = pg;
+              foundTenant = tByPhone;
+              break;
+            }
           }
         }
         if (!foundTenant) {
           const leftT = recordFailedLogin(phone);
+          if (candidatePgForLock) {
+            recordCloudFailedLogin(candidatePgForLock, phone);
+            saveState();
+          }
           errEl.textContent = leftT === 60 ? '🔒 5 ખોટા પ્રયાસો! 60 સેકન્ડ માટે લોક કર્યું.' : `ભાડૂઆતનો મોબાઈલ અથવા PIN ખોટો છે (${leftT} પ્રયાસ બાકી).`;
           errEl.classList.remove('hidden');
           return;
         }
+        clearCloudFailedLogin(foundPg, phone);
         const st = getPgPlanStatus(foundPg);
         if (!st.canLogin) {
           errEl.textContent = `⚠️ ${foundPg.name} નો પ્લાન એક્સપાયર અથવા બંધ છે. કૃપા કરીને તમારા PG માલિકનો સંપર્ક કરો.`;
@@ -4767,7 +4925,7 @@
       }
 
       pg.tenants.unshift({
-        id: 't_' + Date.now(),
+        id: generateSafeId('t'),
         room,
         name,
         phone,
@@ -5009,15 +5167,27 @@
         const pgSel = document.getElementById('spPgSelect');
         pgSel.innerHTML = appState.pgs.map((p) => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
         populateSelfRegRooms(pgSel.value);
-        document.getElementById('spPinInput').value = '111111';
+        document.getElementById('spPinInput').value = '';
         document.getElementById('spStateInput').value = 'ગુજરાત';
         document.getElementById('spJoinDateInput').value = getTodayIsoDate();
+        const regSec = document.getElementById('spRegSecurityWrap');
+        if (regSec) regSec.classList.remove('hidden');
+        const cA = Math.floor(Math.random() * 8) + 2;
+        const cB = Math.floor(Math.random() * 7) + 1;
+        window._spCaptchaAns = cA + cB;
+        const cLbl = document.getElementById('spCaptchaLabel');
+        if (cLbl) cLbl.textContent = `🛡️ સુરક્ષા સવાલ: ${cA} + ${cB} = ?`;
+        const cInp = document.getElementById('spCaptchaInput');
+        if (cInp) cInp.value = '';
+        const cChk = document.getElementById('spConsentCheckbox');
+        if (cChk) cChk.checked = false;
       } else {
         const pg = getSessionPg();
         const lookupId = mode === 'owner-edit' ? ownerEditingTenantId : (appState.session && appState.session.tenantId);
         const t = pg ? pg.tenants.find((item) => item.id === lookupId) : null;
         if (!t) return;
         pgWrap.classList.add('hidden');
+        const regSecHide = document.getElementById('spRegSecurityWrap'); if (regSecHide) regSecHide.classList.add('hidden');
         if (mode === 'owner-edit') {
           document.getElementById('selfProfileTitle').textContent = '✏️ વિદ્યાર્થી પ્રોફાઈલ એડિટ / PIN રીસેટ';
           document.getElementById('selfProfileSub').textContent = `${t.name} • રૂમ ${t.room} • ${pg.name}`;
@@ -5091,7 +5261,7 @@
       });
     });
 
-    document.getElementById('selfProfileForm').addEventListener('submit', (e) => {
+    document.getElementById('selfProfileForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = document.getElementById('spFormError');
       const name = document.getElementById('spNameInput').value.trim();
@@ -5139,6 +5309,22 @@
           errEl.classList.remove('hidden');
           return;
         }
+        if (pg.allowQrRegistration === false) {
+          errEl.textContent = 'PG માલિકે હાલમાં QR રજીસ્ટ્રેશન બંધ રાખ્યું છે. કૃપા કરીને PG માલિકનો સંપર્ક કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        const capVal = Number(document.getElementById('spCaptchaInput').value);
+        if (capVal !== window._spCaptchaAns) {
+          errEl.textContent = 'સુરક્ષા સવાલનો જવાબ ખોટો છે. કૃપા કરીને સાચો સરવાળો લખો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (!document.getElementById('spConsentCheckbox').checked) {
+          errEl.textContent = 'આગળ વધવા માટે ગોપનીયતા નીતિ (અને 18 વર્ષથી નીચે હો તો વાલીની મંજૂરી) પર ટિક કરો.';
+          errEl.classList.remove('hidden');
+          return;
+        }
         if (pg.tenants.some((x) => String(x.phone).replace(/\D/g, '').slice(-10) === phone)) {
           errEl.textContent = 'આ મોબાઈલ નંબર પહેલેથી રજીસ્ટર છે! સીધા વિદ્યાર્થી લોગિનથી લોગિન કરો.';
           errEl.classList.remove('hidden');
@@ -5152,10 +5338,10 @@
           docs.push({ id: 'doc_' + Date.now(), label: 'આધાર કાર્ડ', dataUrl: spPendingAadhaarImg, date: new Date().toLocaleDateString('en-IN') });
         }
         const newTenant = {
-          id: 't_' + Date.now(),
+          id: generateSafeId('t'),
           room: roomNo,
           phone,
-          pin: fastHashPin(pin),
+          pin: await pbkdf2HashPin(pin),
           rent: 0,
           deposit: 0,
           feePendingSetup: true,
@@ -5204,7 +5390,7 @@
         }
         let pinMsg = '';
         if (resetPin) {
-          t.pin = fastHashPin(resetPin);
+          t.pin = await pbkdf2HashPin(resetPin);
           clearFailedLogin(newPhone);
           addSecurityAudit(pg, `🔑 માલિકે ${t.name} નો લોગિન PIN રીસેટ કર્યો`);
           pinMsg = ' અને નવો PIN સેટ થઈ ગયો!';
@@ -5276,7 +5462,7 @@
     document.getElementById('saApplyGlobalRateBtn').addEventListener('click', () => {
       const val = Number(document.getElementById('saGlobalRateInput').value);
       if (isNaN(val) || val <= 0) return;
-      if (!appState.superAdmin) appState.superAdmin = { name: 'એપ માલિક', phone: '9999999999', pin: '000000', defaultPerBedFee: val };
+      if (!appState.superAdmin) appState.superAdmin = { name: 'એપ માલિક', phone: '', pin: '', defaultPerBedFee: val };
       appState.superAdmin.defaultPerBedFee = val;
       appState.pgs.forEach((pg) => { pg.perBedFee = val; });
       saveState();
@@ -5333,7 +5519,7 @@
       const yesterday = addDaysToIso(getTodayIsoDate(), -1);
       document.getElementById('saPlanExpiryInput').value = yesterday;
     });
-    document.getElementById('saPlanForm').addEventListener('submit', (e) => {
+    document.getElementById('saPlanForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const pg = appState.pgs.find((p) => p.id === editingSaPlanPgId);
       if (!pg) return;
@@ -5348,7 +5534,7 @@
           showToast('PG માલિકનો નવો PIN બરાબર 6 અંકનો હોવો જોઈએ.');
           return;
         }
-        pg.ownerPin = fastHashPin(newOwnerPin);
+        pg.ownerPin = await pbkdf2HashPin(newOwnerPin);
         clearFailedLogin(pg.ownerPhone);
         addSecurityAudit(pg, '🔑 એપ માલિક દ્વારા PG માલિકનો PIN રીસેટ કરાયો');
         pinChanged = true;
@@ -5384,19 +5570,33 @@
 
 
 
-    document.getElementById('saLoginForm').addEventListener('submit', (e) => {
+    document.getElementById('saLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const phone = document.getElementById('saLoginPhoneInput').value.trim();
       const pin = document.getElementById('saLoginPinInput').value.trim();
       const errEl = document.getElementById('saLoginError');
-      const sa = appState.superAdmin || { phone: '9999999999', pin: '000000' };
-      const isMigratedDefault = (sa.pin === '0000' && pin === '000000');
-      if (isMigratedDefault) { sa.pin = '000000'; }
-      if (phone !== sa.phone || (!isMigratedDefault && !verifyPinSecure(sa.pin, pin))) {
+      const lockSecSa = checkLoginLockout('sa_' + phone);
+      if (lockSecSa > 0) {
+        errEl.textContent = `🔒 ઘણા ખોટા પ્રયાસો! ${lockSecSa} સેકન્ડ પછી ફરી પ્રયત્ન કરો.`;
+        errEl.classList.remove('hidden');
+        return;
+      }
+      const sa = appState.superAdmin;
+      if (!sa || !sa.phone || !sa.pin) {
+        errEl.textContent = 'ક્લાઉડમાંથી એપ માલિકની વિગત લોડ થાય છે — 2 સેકન્ડ પછી ફરી પ્રયત્ન કરો.';
+        errEl.classList.remove('hidden');
+        syncFromSupabase(false);
+        return;
+      }
+      const chk = await verifyPinAsync(sa.pin, pin);
+      if (phone !== sa.phone || !chk.ok) {
+        recordFailedLogin('sa_' + phone);
         errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
         errEl.classList.remove('hidden');
         return;
       }
+      clearFailedLogin('sa_' + phone);
+      if (chk.needsUpgrade) sa.pin = await pbkdf2HashPin(pin);
       showSaLoginPage = false;
       appState.session = { role: 'superadmin' };
       saveState();
@@ -5507,6 +5707,8 @@
       const regUrl = getPgRegistrationUrl(pg);
       document.getElementById('qrPgNameLabel').textContent = `${pg.name} • માલિક: ${pg.owner} (ID: ${pg.id})`;
       document.getElementById('qrLinkPreview').textContent = regUrl;
+      const qrTog = document.getElementById('qrAllowRegToggle');
+      if (qrTog) qrTog.checked = pg.allowQrRegistration !== false;
 
       const canvas = document.getElementById('pgQrCanvas');
       const ctx = canvas.getContext('2d');
@@ -5797,7 +5999,7 @@ ${url}`;
 
     document.getElementById('cloudSyncBadge').addEventListener('click', () => {
       if (lastCloudError) {
-        showToast('ક્લાઉડ એરર: ' + lastCloudError);
+        showToast('ક્લાઉડ સાથે જોડાણમાં સમસ્યા છે. ઇન્ટરનેટ ચકાસીને 🔄 રિફ્રેશ દબાવો.');
       } else {
         showToast('ક્લાઉડ સિંક બરાબર ચાલુ છે.');
       }
@@ -6230,6 +6432,42 @@ ${url}`;
       }
     }
     setInterval(fastLiveSyncTick, 2000);
+
+    // Privacy Policy Modal + QR Allow Toggle + Tenant Self-Delete Account (DPDP)
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-open-privacy]')) {
+        openModal('privacyPolicyModal');
+      }
+    });
+    document.getElementById('closePrivacyModalBtn').addEventListener('click', () => closeModal('privacyPolicyModal'));
+    document.getElementById('okPrivacyModalBtn').addEventListener('click', () => closeModal('privacyPolicyModal'));
+    document.getElementById('privacyPolicyModal').addEventListener('click', (e) => {
+      if (e.target.id === 'privacyPolicyModal') closeModal('privacyPolicyModal');
+    });
+
+    document.getElementById('qrAllowRegToggle').addEventListener('change', (e) => {
+      const pg = getSessionPg();
+      if (!pg) return;
+      pg.allowQrRegistration = e.target.checked;
+      saveStateNow(pg.id);
+      showToast(pg.allowQrRegistration ? '✅ QR રજીસ્ટ્રેશન ચાલુ કર્યું.' : '🔒 QR રજીસ્ટ્રેશન બંધ કર્યું.');
+    });
+
+    document.getElementById('tenantSelfDeleteBtn').addEventListener('click', async () => {
+      const pg = getSessionPg();
+      if (!pg || !appState.session || appState.session.role !== 'tenant') return;
+      const t = pg.tenants.find((x) => x.id === appState.session.tenantId);
+      if (!t) return;
+      const ok = window.confirm(`શું તમે ખરેખર તમારું એકાઉન્ટ ("${t.name}"), ફોટા અને બધો ડેટા કાયમ માટે ડિલીટ કરવા માંગો છો? આ ક્રિયા પાછી નહીં ફરે.`);
+      if (!ok) return;
+      pg.tenants = pg.tenants.filter((x) => x.id !== t.id);
+      addSecurityAudit(pg, `🗑️ ભાડૂઆત ${t.name} એ પોતાનું એકાઉન્ટ અને ડેટા ડિલીટ કર્યો`);
+      const pgId = pg.id;
+      appState.session = null;
+      await saveStateNow(pgId);
+      render();
+      showToast('તમારું એકાઉન્ટ અને બધો ડેટા કાયમ માટે ડિલીટ થઈ ગયો છે.');
+    });
 
     // Initial Render + Cloud Sync + QR Auto-Open + Incoming Reminders
     render();
