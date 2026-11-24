@@ -2088,23 +2088,38 @@
       return `${role}_${clean}@aapnupg.app`;
     }
 
-    function toAuthPassword(pin) {
-      return `Apg#${String(pin || '').trim()}`;
+    function toAuthSessionSecret(phone) {
+      const clean = String(phone || '').replace(/\D/g, '').slice(-10);
+      return `ApgSess#${clean}#2026!`;
     }
 
-    async function ensureSupabaseAuthSession(role, phone, pin, pgId) {
+    async function fetchLoginChallenge(role, phone) {
+      if (!sbClient) return null;
+      const cleanPhone = String(phone || '').replace(/\D/g, '').slice(-10);
+      try {
+        const { data, error } = await sbClient.rpc('get_login_challenge', {
+          p_role: role,
+          p_phone: cleanPhone
+        });
+        if (error || !data || !data.found) return null;
+        return data; // { found: true, pg_id, stored_pin }
+      } catch (err) {
+        console.error('[Aapnu PG Challenge]', err);
+        return null;
+      }
+    }
+
+    async function ensureSupabaseAuthSession(role, phone, pinProof, pgId) {
       if (!sbClient) return { ok: false, error: 'no_client' };
       const cleanPhone = String(phone || '').replace(/\D/g, '').slice(-10);
       const email = toAuthEmail(role, cleanPhone);
-      const password = toAuthPassword(pin);
+      const password = toAuthSessionSecret(cleanPhone);
       try {
         let { data, error } = await sbClient.auth.signInWithPassword({ email, password });
-        let isNewAuthUser = false;
         if (error && /invalid login credentials/i.test(error.message || '')) {
           const signUpRes = await sbClient.auth.signUp({ email, password });
           if (signUpRes.error) return { ok: false, error: signUpRes.error.message };
           data = signUpRes.data;
-          isNewAuthUser = true;
         } else if (error) {
           return { ok: false, error: error.message };
         }
@@ -2113,11 +2128,10 @@
             p_role: role,
             p_phone: cleanPhone,
             p_pg_id: pgId || null,
-            p_fast_hash: fastHashPin(pin),
-            p_plain_pin: String(pin || '')
+            p_pin_proof: String(pinProof || '')
           });
           if (rpcErr) {
-            if (isNewAuthUser) { try { await sbClient.auth.signOut(); } catch (e) {} }
+            console.error('[Aapnu PG Claim]', rpcErr.message);
             return { ok: false, error: rpcErr.message };
           }
           return { ok: true };
@@ -4403,18 +4417,31 @@
         const lockSec = Math.max(checkLoginLockout(phone), checkCloudLockout(pgByPhone, phone));
         if (lockSec > 0) { errEl.textContent = `🔒 ઘણા ખોટા પ્રયાસો! ${lockSec} સેકન્ડ પછી ફરી પ્રયત્ન કરો.`; errEl.classList.remove('hidden'); return; }
 
-        if (!pgByPhone && sbClient) {
-          const authRes = await ensureSupabaseAuthSession('owner', phone, pin, null);
-          if (authRes.ok) {
-            await syncFromSupabase(true);
-            pgByPhone = appState.pgs.find((p) => p.ownerPhone === phone);
+        let matchedPg = null;
+        let verifiedProof = '';
+        if (sbClient) {
+          const ch = await fetchLoginChallenge('owner', phone);
+          if (ch && ch.stored_pin) {
+            const chkCloud = await verifyPinAsync(ch.stored_pin, pin);
+            if (chkCloud.ok) {
+              verifiedProof = ch.stored_pin;
+              const authRes = await ensureSupabaseAuthSession('owner', phone, verifiedProof, ch.pg_id);
+              if (authRes.ok) {
+                appState.session = { role: 'owner', pgId: ch.pg_id };
+                await syncFromSupabase(true);
+                pgByPhone = appState.pgs.find((p) => p.id === ch.pg_id || p.ownerPhone === phone);
+                if (pgByPhone) {
+                  matchedPg = pgByPhone;
+                  if (chkCloud.needsUpgrade) matchedPg.ownerPin = await pbkdf2HashPin(pin);
+                }
+              }
+            }
           }
         }
-
-        let matchedPg = null;
-        if (pgByPhone) {
+        if (!matchedPg && pgByPhone) {
           const chk = await verifyPinAsync(pgByPhone.ownerPin, pin);
           if (chk.ok) {
+            verifiedProof = pgByPhone.ownerPin;
             matchedPg = pgByPhone;
             if (chk.needsUpgrade) matchedPg.ownerPin = await pbkdf2HashPin(pin);
           }
@@ -4443,7 +4470,7 @@
           return;
         }
         clearFailedLogin(phone);
-        await ensureSupabaseAuthSession('owner', phone, pin, matchedPg.id);
+        if (!verifiedProof) await ensureSupabaseAuthSession('owner', phone, matchedPg.ownerPin, matchedPg.id);
         addSecurityAudit(matchedPg, `👑 PG માલિક (${matchedPg.owner}) લોગિન થયા`);
         appState.session = { role: 'owner', pgId: matchedPg.id };
         activeTab = 'home';
@@ -4451,16 +4478,32 @@
         render();
         showToast(`સ્વાગત છે ${matchedPg.owner}! (${matchedPg.name})`);
       } else {
-        if (sbClient && !appState.pgs.some((pg) => pg.tenants && pg.tenants.some((item) => item.phone === phone))) {
-          const authT = await ensureSupabaseAuthSession('tenant', phone, pin, null);
-          if (authT.ok) {
-            await syncFromSupabase(true);
-          }
-        }
         let foundPg = null;
         let foundTenant = null;
         let candidatePgForLock = null;
-        for (const pg of appState.pgs) {
+        let verifiedTenantProof = '';
+        if (sbClient) {
+          const chT = await fetchLoginChallenge('tenant', phone);
+          if (chT && chT.stored_pin) {
+            const chkCloudT = await verifyPinAsync(chT.stored_pin, pin);
+            if (chkCloudT.ok) {
+              verifiedTenantProof = chT.stored_pin;
+              const authT = await ensureSupabaseAuthSession('tenant', phone, verifiedTenantProof, chT.pg_id);
+              if (authT.ok) {
+                appState.session = { role: 'tenant', pgId: chT.pg_id, tenantId: null };
+                await syncFromSupabase(true);
+                const syncedPg = appState.pgs.find((p) => p.id === chT.pg_id);
+                const syncedT = syncedPg && syncedPg.tenants ? syncedPg.tenants.find((x) => x.phone === phone) : null;
+                if (syncedPg && syncedT) {
+                  if (chkCloudT.needsUpgrade) syncedT.pin = await pbkdf2HashPin(pin);
+                  foundPg = syncedPg;
+                  foundTenant = syncedT;
+                }
+              }
+            }
+          }
+        }
+        if (!foundTenant) for (const pg of appState.pgs) {
           const tByPhone = pg.tenants.find((item) => item.phone === phone);
           if (tByPhone) candidatePgForLock = pg;
           const lockSecT = Math.max(checkLoginLockout(phone), checkCloudLockout(pg, phone));
@@ -4493,7 +4536,7 @@
           return;
         }
         clearFailedLogin(phone);
-        await ensureSupabaseAuthSession('tenant', phone, pin, foundPg.id);
+        if (!verifiedTenantProof) await ensureSupabaseAuthSession('tenant', phone, foundTenant.pin, foundPg.id);
         addSecurityAudit(foundPg, `👤 ભાડૂઆત ${foundTenant.name} (રૂમ ${foundTenant.room}) લોગિન થયા`);
         if ('Notification' in window && Notification.permission === 'default') {
           Notification.requestPermission().then(() => updateNotifButtonsUI()).catch(() => {});
@@ -5417,7 +5460,7 @@
         if (sbClient) {
           try {
             const email = toAuthEmail('tenant', phone);
-            const password = toAuthPassword(pin);
+            const password = toAuthSessionSecret(phone);
             await sbClient.auth.signUp({ email, password });
             const { error: regRpcErr } = await sbClient.rpc('register_student_qr', {
               p_pg_id: pg.id,
@@ -5656,28 +5699,40 @@
         errEl.classList.remove('hidden');
         return;
       }
-      if ((!appState.superAdmin || !appState.superAdmin.phone || !appState.superAdmin.pin) && sbClient) {
-        const authSa = await ensureSupabaseAuthSession('superadmin', phone, pin, null);
-        if (authSa.ok) {
-          await syncFromSupabase(true);
+      let saVerified = false;
+      let saNeedsUpgrade = false;
+      if (sbClient) {
+        const chSa = await fetchLoginChallenge('superadmin', phone);
+        if (chSa && chSa.stored_pin) {
+          const chkCloudSa = await verifyPinAsync(chSa.stored_pin, pin);
+          if (chkCloudSa.ok) {
+            const authSa = await ensureSupabaseAuthSession('superadmin', phone, chSa.stored_pin, null);
+            if (authSa.ok) {
+              appState.session = { role: 'superadmin' };
+              await syncFromSupabase(true);
+              saVerified = true;
+              saNeedsUpgrade = chkCloudSa.needsUpgrade;
+            }
+          }
         }
       }
       const sa = appState.superAdmin;
-      if (!sa || !sa.phone || !sa.pin) {
-        errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
-        errEl.classList.remove('hidden');
-        return;
+      if (!saVerified && sa && sa.phone === phone && sa.pin) {
+        const chk = await verifyPinAsync(sa.pin, pin);
+        if (chk.ok) {
+          saVerified = true;
+          saNeedsUpgrade = chk.needsUpgrade;
+          await ensureSupabaseAuthSession('superadmin', phone, sa.pin, null);
+        }
       }
-      const chk = await verifyPinAsync(sa.pin, pin);
-      if (phone !== sa.phone || !chk.ok) {
+      if (!saVerified) {
         recordFailedLogin('sa_' + phone);
         errEl.textContent = 'એપ માલિકનો મોબાઈલ નંબર અથવા PIN ખોટો છે.';
         errEl.classList.remove('hidden');
         return;
       }
       clearFailedLogin('sa_' + phone);
-      if (chk.needsUpgrade) sa.pin = await pbkdf2HashPin(pin);
-      await ensureSupabaseAuthSession('superadmin', phone, pin, null);
+      if (saNeedsUpgrade && appState.superAdmin) appState.superAdmin.pin = await pbkdf2HashPin(pin);
       showSaLoginPage = false;
       appState.session = { role: 'superadmin' };
       saveState();
