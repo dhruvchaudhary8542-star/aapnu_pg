@@ -3066,6 +3066,9 @@
                 }">
                   ${st.isAllowed ? '🚫 લોગિન બંધ કરો' : '✅ લોગિન ચાલુ કરો'}
                 </button>
+                <button type="button" data-sa-action="delete-pg" data-pg-id="${escapeHtml(pg.id)}" class="ml-auto px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-200 text-rose-800 border border-rose-300 text-xs font-extrabold cursor-pointer">
+                  🗑️ PG ડિલીટ કરો
+                </button>
               </div>
             </article>
           `;
@@ -5588,7 +5591,7 @@
       showToast(`બધા PG માટે ₹${val} / ભરેલો બેડ સેટ થઈ ગયું!`);
     });
 
-    document.getElementById('saPgList').addEventListener('click', (e) => {
+    document.getElementById('saPgList').addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-sa-action]');
       if (!btn) return;
       const action = btn.dataset.saAction;
@@ -5607,6 +5610,36 @@
         saveState();
         render();
         showToast(pg.isAllowed ? `✅ ${pg.name} ને લોગિનની મંજૂરી આપી.` : `🚫 ${pg.name} નું લોગિન બંધ (Block) કર્યું.`);
+      } else if (action === 'delete-pg') {
+        const tenantCount = Array.isArray(pg.tenants) ? pg.tenants.length : 0;
+        const roomCount = Array.isArray(pg.rooms) ? pg.rooms.length : 0;
+        const step1 = window.confirm(
+          `⚠️ સાવધાન! શું તમે "${pg.name}" (માલિક: ${pg.owner}) ને કાયમ માટે ડિલીટ કરવા માંગો છો?\n\nઆ PG ના ${roomCount} રૂમ, ${tenantCount} ભાડૂઆતો, બધા ફોટા, બિલ અને હિસાબ ક્લાઉડમાંથી કાયમ માટે ભૂંસાઈ જશે.`
+        );
+        if (!step1) return;
+        const step2 = window.prompt(`કન્ફર્મ કરવા માટે નીચેના બોક્સમાં DELETE લખો ("${pg.name}" કાયમ માટે ડિલીટ થશે):`);
+        if (!step2 || step2.trim().toUpperCase() !== 'DELETE') {
+          showToast('PG ડિલીટ કરવાની પ્રક્રિયા રદ કરી.');
+          return;
+        }
+        if (sbClient) {
+          try {
+            setCloudBadge('🔄 PG ડિલીટ થાય છે...', 'bg-amber-100 text-amber-900 border border-amber-200');
+            const { error: delErr } = await sbClient.from('pg_accounts').delete().eq('id', pg.id);
+            if (delErr) throw delErr;
+            setCloudBadge('☁️ ક્લાઉડ સિંક ચાલુ', 'bg-emerald-100 text-emerald-900 border border-emerald-200');
+          } catch (err) {
+            console.error('[Aapnu PG Delete]', err);
+            setCloudBadge('⚠️ ક્લાઉડ કનેક્શન સમસ્યા', 'bg-rose-100 text-rose-900 border border-rose-200 cursor-pointer');
+            showToast('ક્લાઉડમાંથી PG ડિલીટ કરવામાં સમસ્યા આવી. ઇન્ટરનેટ ચકાસીને ફરી પ્રયત્ન કરો.');
+            return;
+          }
+        }
+        appState.pgs = appState.pgs.filter((p) => p.id !== pg.id);
+        delete lastKnownPgUpdatedAt[pg.id];
+        saveLocalSafe();
+        render();
+        showToast(`🗑️ "${pg.name}" અને તેનો બધો ડેટા ક્લાઉડમાંથી કાયમ માટે ડિલીટ થઈ ગયો!`);
       } else if (action === 'plan' || action === 'reset-pin') {
         editingSaPlanPgId = pg.id;
         document.getElementById('saPlanModalSub').textContent = `${pg.name} • માલિક: ${pg.owner} (${pg.ownerPhone})`;
